@@ -5,18 +5,18 @@ besoin, ce qui existe aujourd'hui dans le code, et une piste de réalisation. Ch
 prévue pour devenir une ou plusieurs issues. Les décisions de fond associées sont dans
 [decisions.md](decisions.md).
 
-| N°                                                | Besoin                                                              | Existant                      |
-| ------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------- |
-| [B1](#b1--copier-un-bloc-de-code)                 | Copier un bloc de code                                              | Partiel (lignes d'outils)     |
-| [B2](#b2--exécuter-une-commande-proposée)         | Exécuter une commande proposée et en analyser le retour             | Non                           |
-| [B3](#b3--repères-de-navigation-et-statistiques)  | Repères de navigation à droite, statistiques au survol              | Non                           |
+| N°                                                 | Besoin                                                              | Existant                      |
+| -------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------- |
+| [B1](#b1--copier-un-bloc-de-code)                  | Copier un bloc de code                                              | Partiel (lignes d'outils)     |
+| [B2](#b2--exécuter-une-commande-proposée)          | Exécuter une commande proposée et en analyser le retour             | Non                           |
+| [B3](#b3--repères-de-navigation-et-statistiques)   | Repères de navigation à droite, statistiques au survol              | Non                           |
 | [B4](#b4--barre-latérale--utilisateur-et-réglages) | Réglages en bas, prénom et forfait de l'utilisateur                 | Non                           |
-| [B5](#b5--barre-sous-le-champ-de-saisie)          | Modèle, raisonnement et contexte sous le champ de saisie            | Partiel                       |
-| [B6](#b6--touches-entrée)                         | Entrée principale envoie, Entrée du pavé numérique ajoute une ligne | Non                           |
-| [B7](#b7--réinterroger-lia-sur-une-sélection)     | Réinterroger l'IA sur une sélection                                 | Partiel (« ajouter au chat ») |
-| [B8](#b8--organisation-de-la-barre-latérale)      | Tri par projet ou par date                                          | Non                           |
-| [B9](#b9--navigateur-drawio-et-suite-bureautique) | Navigateur, draw.io, suite bureautique                              | Non                           |
-| [B10](#b10--textes-de-linterface)                 | Textes « Ask pi… » à remplacer                                      | —                             |
+| [B5](#b5--barre-sous-le-champ-de-saisie)           | Modèle, raisonnement et contexte sous le champ de saisie            | Partiel                       |
+| [B6](#b6--touches-entrée)                          | Entrée principale envoie, Entrée du pavé numérique ajoute une ligne | Non                           |
+| [B7](#b7--réinterroger-lia-sur-une-sélection)      | Réinterroger l'IA sur une sélection                                 | Partiel (« ajouter au chat ») |
+| [B8](#b8--organisation-de-la-barre-latérale)       | Tri par projet ou par date                                          | Non                           |
+| [B9](#b9--navigateur-drawio-et-suite-bureautique)  | Navigateur, draw.io, suite bureautique                              | Non                           |
+| [B10](#b10--textes-de-linterface)                  | Textes « Ask pi… » à remplacer                                      | —                             |
 
 ## B1 — Copier un bloc de code
 
