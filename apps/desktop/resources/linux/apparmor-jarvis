@@ -7,7 +7,9 @@
 abi <abi/4.0>,
 include <tunables/global>
 
-profile jarvis /tmp/.mount_*/jarvis.bin flags=(unconfined) {
+# Chemins couverts : AppImage montée (/tmp/.mount_*) et installation par scripts/install.sh
+# (~/.local/share/jarvis/app). Adapter si les dossiers personnels ne sont pas sous /home.
+profile jarvis /{tmp/.mount_*,home/*/.local/share/jarvis/app}/jarvis.bin flags=(unconfined) {
   userns,
 
   include if exists <local/jarvis>

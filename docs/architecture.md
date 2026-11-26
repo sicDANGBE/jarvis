@@ -239,6 +239,12 @@ ni un écran ne les appelle. Voir [securite.md](securite.md) pour le détail et 
   [`after-pack-linux-launcher.cjs`](../apps/desktop/scripts/after-pack-linux-launcher.cjs) renomme
   le binaire en `jarvis.bin` et le remplace par un script `jarvis` qui choisit le mode sandbox de
   Chromium (voir [securite.md](securite.md)).
+- L'icône a une source unique, [`resources/icon.svg`](../apps/desktop/resources/icon.svg) ;
+  [`scripts/build-icons.mjs`](../apps/desktop/scripts/build-icons.mjs) en génère `icon.png` et
+  `icon.icns` (variable `CHROMIUM_PATH` si le navigateur de Playwright n'est pas installé). Le
+  logo de l'écran « nouveau fil » (`JarvisLogoMark`) reprend le même dessin.
+- [`scripts/install.sh`](../scripts/install.sh) installe la dernière release pour l'utilisateur
+  courant, sans droits root ; voir [exploitation.md](exploitation.md).
 - Le workflow [`jarvis-appimage.yml`](../.github/workflows/jarvis-appimage.yml) construit et
   publie ; voir [exploitation.md](exploitation.md).
 - Des cibles macOS (dmg/zip) et Windows (nsis/portable) existent dans la configuration mais ne sont

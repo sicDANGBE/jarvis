@@ -168,7 +168,7 @@ Le crochet `afterPack` renomme le binaire Electron en `jarvis.bin` et installe Ã
 Sinon, il affiche un avertissement sur la sortie d'erreur et lance `jarvis.bin --no-sandbox`.
 
 Le profil fourni ([`apparmor-jarvis`](../apps/desktop/resources/linux/apparmor-jarvis)) autorise
-les user namespaces pour `/tmp/.mount_*/jarvis.bin`. Son installation demande root, une fois par
+les user namespaces pour `/tmp/.mount_*/jarvis.bin` et `/home/*/.local/share/jarvis/app/jarvis.bin`. Son installation demande root, une fois par
 poste ; voir [exploitation.md](exploitation.md).
 
 **Limites connues**

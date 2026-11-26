@@ -7,9 +7,22 @@ tâches planifiées).
 
 ## Installation (sans droits administrateur)
 
-1. Installer Pi : `curl -fsSL https://pi.dev/install.sh | sh`
-2. Télécharger `jarvis-<version>-x86_64.AppImage` depuis l'onglet **Releases**.
-3. `chmod +x jarvis-*.AppImage && ./jarvis-*.AppImage`
+Sur un poste Linux x86_64, avec votre compte utilisateur (jamais avec `sudo`) :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sicDANGBE/jarvis/main/scripts/install.sh | sh
+```
+
+Le script télécharge la dernière version (stable, sinon `nightly`), vérifie son empreinte, l'installe
+dans `~/.local/share/jarvis`, et ajoute Jarvis au menu des applications avec son icône ainsi que la
+commande `~/.local/bin/jarvis`. Relancez-le pour mettre à jour ; pour désinstaller :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sicDANGBE/jarvis/main/scripts/install.sh | sh -s -- --uninstall
+```
+
+Il n'est pas nécessaire d'installer Pi : l'application embarque l'agent. L'AppImage reste aussi
+téléchargeable directement depuis l'onglet **Releases**.
 
 Sur Ubuntu ≥ 23.10, AppArmor restreint les user namespaces : l'application démarre alors sans
 sandbox Chromium et l'indique dans le terminal. Pour la réactiver sur un parc, l'admin déploie une

@@ -173,23 +173,27 @@ export function ArrowUpIcon() {
   );
 }
 
-export function PiLogoMark() {
+/** Jarvis's mark; the same drawing as `resources/icon.svg`, the app icon. */
+export function JarvisLogoMark() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 64 64" fill="none">
-      <rect width="64" height="64" rx="18" fill="#1f2638" />
-      <text
-        x="50%"
-        y="54%"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontFamily="SF Pro Display, SF Pro Text, ui-sans-serif, system-ui, sans-serif"
-        fontSize="34"
-        fontStyle="italic"
-        fontWeight="700"
-        fill="#ffffff"
-      >
-        π
-      </text>
+    <svg aria-hidden="true" viewBox="0 0 1024 1024" fill="none">
+      <defs>
+        <linearGradient id="jarvis-logo-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#1e1b4b" />
+          <stop offset="1" stopColor="#4338ca" />
+        </linearGradient>
+      </defs>
+      <rect width="1024" height="1024" rx="232" fill="url(#jarvis-logo-bg)" />
+      <path
+        d="M 628 262 V 598 A 176 176 0 0 1 276 598"
+        stroke="#ffffff"
+        strokeWidth="124"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 344 220 Q 352 300 432 308 Q 352 316 344 396 Q 336 316 256 308 Q 336 300 344 220 Z"
+        fill="#a5f3fc"
+      />
     </svg>
   );
 }

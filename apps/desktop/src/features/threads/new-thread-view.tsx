@@ -15,7 +15,7 @@ import type {
   WorkspaceRecord,
 } from "../../../contracts/desktop-state";
 import type { MentionOption } from "../conversation/hooks/use-mention-menu";
-import { ArrowUpIcon, PiLogoMark, PlusIcon } from "../../ui/icons";
+import { ArrowUpIcon, JarvisLogoMark, PlusIcon } from "../../ui/icons";
 import {
   MODEL_OPTIONS_EMPTY_TITLE,
   type ComposerSlashCommand,
@@ -162,7 +162,7 @@ export function NewThreadView({
       <div className="new-thread">
         <div className="new-thread__hero">
           <div className="new-thread__logo" data-testid="new-thread-logo">
-            <PiLogoMark />
+            <JarvisLogoMark />
           </div>
           <div className="new-thread__eyebrow">New thread</div>
           <h1 className="new-thread__title">Let&apos;s build</h1>
