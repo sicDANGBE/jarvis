@@ -27,7 +27,8 @@ dans le code et ce qui reste à préciser. L'état actuel du code est décrit da
 **Décision.** La configuration de Jarvis (prompt système, sorties réseau autorisées, modèles,
 paquets, savoirs, options) a deux sources :
 
-- **en développement** : un fichier local, dont l'usage est protégé par un **jeton admin** ;
+- **en développement** : un fichier local, utilisé avec un **utilisateur simulé administrateur**
+  (`isAdmin: true`) ;
 - **en production** : un **serveur de configuration** hébergé sur le cloud de l'agence, à créer
   plus tard.
 
@@ -36,16 +37,20 @@ paquets, savoirs, options) a deux sources :
 - Le format signé existant ([`managed-config.ts`](../apps/desktop/electron/jarvis/managed-config.ts))
   reste la référence pour le serveur. Le mode local doit avoir le même schéma, pour qu'un bundle
   passe du développement à la production sans modification.
-- Le jeton admin doit être exigé à chaque chargement d'une configuration locale. Sans jeton valide,
-  la configuration locale est ignorée : un utilisateur ne peut pas contourner la politique de
-  l'agence en déposant un fichier.
+- La configuration locale n'est acceptée que par une **version de développement**. Une version de
+  production l'ignore : un utilisateur ne peut pas contourner la politique de l'agence en déposant
+  un fichier.
+- L'utilisateur simulé `isAdmin: true` **préfigure les rôles** : le code s'appuie dès maintenant
+  sur une identité porteuse de rôles, qui viendra plus tard de l'authentification
+  ([D6](#d6--authentification)) et de la réponse d'initialisation.
 - Le serveur n'existe pas encore : son API (voir [D4](#d4--configuration-propre-à-jarvis-et-initialisation))
   doit être spécifiée dans le dépôt pour que client et serveur puissent avancer séparément.
 
-**Précisions (2026-11-26).** Le jeton admin est un **UUID v4**, réservé aux **versions de
-développement** : une version de production n'accepte aucune configuration locale.
+**Précisions (2026-11-26).** Une première version prévoyait un jeton admin UUID v4. Elle est
+**remplacée** par l'utilisateur simulé `isAdmin: true`, qui préfigure les rôles.
 
-**À préciser.** L'endroit où le jeton est saisi ou déposé. La protection contre le retour à un
+**À préciser.** Le moyen de distinguer une version de développement d'une version de production
+(variable de build, canal de publication). La protection contre le retour à un
 bundle plus ancien (numéro de séquence ou comparaison d'`issuedAt`), signalée dans
 [securite.md](securite.md#configuration-centrale-signée-ed25519--).
 
