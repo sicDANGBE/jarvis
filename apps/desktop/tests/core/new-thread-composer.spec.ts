@@ -35,7 +35,7 @@ test("new thread reuses composer behaviors for slash commands, image previews, a
     await expect(composer).toBeFocused();
     await expect(composer).toHaveAttribute(
       "placeholder",
-      "Ask pi anything, use / for commands and skills",
+      "Ask Jarvis anything, use / for commands and skills",
     );
 
     const modelBadge = window.locator(".new-thread__hint .model-selector__badge").first();

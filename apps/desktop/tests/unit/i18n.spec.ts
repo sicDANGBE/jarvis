@@ -130,10 +130,11 @@ test("the language follows the OS until the user picks one", () => {
     ["system", ["zh-Hans-CN"], "zh-CN"],
     ["system", ["en-US", "zh-CN"], "en"],
     ["system", ["de-DE", "zh-TW"], "zh-CN"],
-    ["system", [], "en"],
-    // A language we do not ship reads English. "xx" is reserved for no linguistic
-    // content, so registering a real language never invalidates this case.
-    ["system", ["xx-XX"], "en"],
+    ["system", [], "fr"],
+    ["system", ["fr-FR", "en-US"], "fr"],
+    // A language we do not ship reads Jarvis's language, French (decision D2). "xx" is
+    // reserved for no linguistic content, so registering a real language never invalidates this.
+    ["system", ["xx-XX"], "fr"],
     // An explicit choice wins over the OS.
     ["en", ["zh-CN"], "en"],
     ["zh-CN", ["en-US"], "zh-CN"],

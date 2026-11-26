@@ -435,6 +435,8 @@ function buildDesktopLaunchEnv(
     PI_APP_OPEN_DEVTOOLS: "0",
     // Jarvis refuses to run as root (issue #11); test containers often are root.
     JARVIS_ALLOW_ROOT_FOR_TESTS: "1",
+    // Jarvis shows French by default (decision D2); tests assert the English copy.
+    JARVIS_UI_LOCALE: "en",
     ...(options.envOverrides ?? {}),
   };
   for (const [key, value] of Object.entries(options.envOverrides ?? {})) {

@@ -112,6 +112,9 @@ export type NewMcpServerInput = { readonly name: string; readonly description?: 
   { readonly command: string; readonly args: readonly string[] } | { readonly url: string }
 );
 
+/** Renderer argument carrying a forced UI locale, e.g. `--jarvis-ui-locale=en`. */
+export const uiLocaleArgumentPrefix = "--jarvis-ui-locale=";
+
 export const desktopIpc = {
   networkActivity: "jarvis:network-activity",
   getCurrentUser: "jarvis:get-current-user",
@@ -734,6 +737,8 @@ export interface PiDesktopApi {
   platform: NodeJS.Platform;
   /** True when the window has no native title bar and the app draws its own. */
   drawsWindowControls: boolean;
+  /** UI locale forced by the main process (JARVIS_UI_LOCALE), used by test harnesses. */
+  uiLocale?: string;
   versions: NodeJS.ProcessVersions;
   ping(): Promise<string>;
   getState(): Promise<DesktopAppState>;

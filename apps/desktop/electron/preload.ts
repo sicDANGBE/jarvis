@@ -14,6 +14,7 @@ import {
   createDesktopCommandSubscription,
   desktopIpc,
   drawWindowControlsArgument,
+  uiLocaleArgumentPrefix,
   type PiDesktopApi,
   type CustomProviderConfig,
   type CustomProviderProbeInput,
@@ -123,6 +124,9 @@ ipcRenderer.on(desktopIpc.appCommand, (_event, command: PiDesktopCommand) => {
 contextBridge.exposeInMainWorld("piApp", {
   platform: process.platform,
   drawsWindowControls: process.argv.includes(drawWindowControlsArgument),
+  uiLocale: process.argv
+    .find((argument) => argument.startsWith(uiLocaleArgumentPrefix))
+    ?.slice(uiLocaleArgumentPrefix.length),
   versions: process.versions,
   ping: () => ipcRenderer.invoke(desktopIpc.ping) as Promise<string>,
   getState: () => ipcRenderer.invoke(desktopIpc.stateRequest) as Promise<DesktopAppState>,

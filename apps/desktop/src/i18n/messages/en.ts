@@ -11,6 +11,9 @@ export const en = {
   "account.guest": "User",
   "account.admin": "Admin",
   "account.settings": "Settings",
+  "composer.placeholder": "Ask Jarvis to help, run a task, or continue the conversation…",
+  "composer.newThreadPlaceholder": "Ask Jarvis anything, use / for commands and skills",
+  "scheduled.intro": "Ask Jarvis to schedule tasks, set reminders, or monitor for updates.",
   "message.copyCode": "Copy code",
   "message.codeCopied": "Copied",
   "network.region": "Network access",
@@ -36,6 +39,11 @@ export const en = {
   "mcp.removeHidden":
     "{question} Its hidden settings (environment variables, headers, sign-in config) are deleted too.",
   "ui.customEndpoints": "Custom endpoints",
+  "ui.apiProtocol": "API protocol",
+  "ui.apiProtocolHelp":
+    "For Anthropic Messages, use the service root (without /v1/messages); a trailing /v1 is normalized on save. Model IDs can also be entered manually. Existing per-model overrides in models.json are preserved.",
+  "ui.reasoningSupportedLabel": "Reasoning supported: {id}",
+  "ui.supportsReasoning": "{id}: supports reasoning",
   "ui.addOpenAICompatibleEndpointsOllamaVLLMOrYourOwnServerStoredIn":
     "Add OpenAI-compatible endpoints (Ollama, vLLM, or your own server). Stored in ~/.pi/agent/models.json.",
   "ui.noCustomEndpointsYet": "No custom endpoints yet.",

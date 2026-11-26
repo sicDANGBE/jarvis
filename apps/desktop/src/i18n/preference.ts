@@ -5,7 +5,7 @@
  * Browser-safe: the renderer owns the preference and remembers it in this profile's
  * localStorage, next to the other renderer-only layout preferences.
  */
-import { appLocaleIds, defaultLocale, matchSystemLocale, type AppLocale } from "./catalog";
+import { appLocaleIds, matchSystemLocale, productLocale, type AppLocale } from "./catalog";
 
 export type LocalePreference = "system" | AppLocale;
 
@@ -44,17 +44,17 @@ export function resolveLocale(
       return match;
     }
   }
-  // An unregistered system language reads the default locale.
-  return defaultLocale;
+  // An unregistered system language reads Jarvis's language.
+  return productLocale;
 }
 
 export function readStoredLocale(): LocalePreference {
   try {
     const raw = localStorage.getItem(LOCALE_STORAGE_KEY);
-    return isLocalePreference(raw) ? raw : "system";
+    return isLocalePreference(raw) ? raw : initialLocalePreference();
   } catch {
-    // Reading preferences is best-effort; the system language still applies.
-    return "system";
+    // Reading preferences is best-effort; Jarvis's language still applies.
+    return initialLocalePreference();
   }
 }
 
@@ -64,4 +64,13 @@ export function writeStoredLocale(preference: LocalePreference): void {
   } catch {
     // The choice stays live for this window even if it cannot be saved.
   }
+}
+
+/**
+ * The preference before the user picks one: French (decision D2), unless the main process
+ * passes another locale (test harnesses do, so their English assertions keep working).
+ */
+export function initialLocalePreference(): LocalePreference {
+  const override = typeof window === "undefined" ? undefined : window.piApp?.uiLocale;
+  return isLocalePreference(override) ? override : productLocale;
 }

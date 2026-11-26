@@ -4,6 +4,7 @@
  * copy checks in tests/unit/i18n.spec.ts — derives from this list.
  */
 import { en, type Messages } from "./messages/en";
+import { fr } from "./messages/fr";
 import { zhCN } from "./messages/zh-CN";
 
 export type { MessageKey, Messages } from "./messages/en";
@@ -28,6 +29,12 @@ export interface LocaleDefinition {
 export const defaultLocale = "en" as const;
 
 /**
+ * The language Jarvis shows when the user has not chosen one: French replaces English
+ * (decision D2). Missing French keys still fall back to `defaultLocale`.
+ */
+export const productLocale = "fr" as const;
+
+/**
  * To add a language, run `pnpm i18n:new <tag> "<label>"`: it writes the catalog file
  * and adds the entry below. By hand it is the same two edits — write
  * `messages/<tag>.ts` as a `Partial<Messages>`, then import it below and add one entry
@@ -39,6 +46,12 @@ export const LOCALES = [
     label: "English",
     messages: en,
     matchesSystemTag: (languageTag) => languageTagParts(languageTag).primary === "en",
+  },
+  {
+    id: "fr",
+    label: "Français",
+    messages: fr,
+    matchesSystemTag: (languageTag) => languageTagParts(languageTag).primary === "fr",
   },
   {
     id: "zh-CN",

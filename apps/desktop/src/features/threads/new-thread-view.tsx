@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import {
   useEffect,
   useRef,
@@ -125,6 +126,7 @@ export function NewThreadView({
   onRemoveAttachment,
   onSubmit,
 }: NewThreadViewProps) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const workspace = workspaces.find((entry) => entry.id === selectedWorkspaceId);
 
@@ -225,7 +227,7 @@ export function NewThreadView({
               textareaLabel="New thread prompt"
               textareaTestId="new-thread-composer"
               textareaClassName="new-thread__textarea"
-              textareaPlaceholder="Ask pi anything, use / for commands and skills"
+              textareaPlaceholder={t("composer.newThreadPlaceholder")}
               footer={
                 <NewThreadComposerFooter
                   runtime={runtime}

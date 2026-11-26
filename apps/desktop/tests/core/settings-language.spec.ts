@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { resolveLocale } from "../../src/i18n/preference";
 import { translatorFor } from "../../src/i18n/translate";
 import {
   type DesktopHarness,
@@ -16,12 +15,12 @@ async function openAppearance(window: Page) {
   await window.keyboard.press(desktopShortcut(","));
   const surface = window.getByTestId("settings-surface");
   await expect(surface).toBeVisible();
-  await surface.getByRole("button", { name: /^(Appearance|外观)$/ }).click();
+  await surface.getByRole("button", { name: /^(Appearance|Apparence|外观)$/ }).click();
   return surface;
 }
 
 function languagePicker(window: Page) {
-  return window.getByRole("combobox", { name: /^(Language|语言)$/ });
+  return window.getByRole("combobox", { name: /^(Language|Langue|语言)$/ });
 }
 
 async function openSecondWindow(harness: DesktopHarness): Promise<Page> {
@@ -55,11 +54,10 @@ test("Settings switches to Simplified Chinese and back, and the choice survives 
     const window = await firstRun.firstWindow();
     const surface = await openAppearance(window);
 
-    // Until the user picks one, the language follows the OS.
-    await expect(languagePicker(window)).toHaveValue("system");
-    const systemLanguages = await window.evaluate(() => [...navigator.languages]);
-    const systemLocale = resolveLocale("system", systemLanguages);
-    await expect(window.locator("html")).toHaveAttribute("lang", systemLocale);
+    // Until the user picks one, Jarvis shows French (decision D2); the test harness forces
+    // English through JARVIS_UI_LOCALE so the other suites can assert the English copy.
+    await expect(languagePicker(window)).toHaveValue("en");
+    await expect(window.locator("html")).toHaveAttribute("lang", "en");
 
     await languagePicker(window).selectOption("zh-CN");
     await expect(window.locator("html")).toHaveAttribute("lang", "zh-CN");
@@ -117,6 +115,24 @@ test("a language picked in one window applies to the other open windows", async 
     const secondSurface = await openAppearance(second);
     await expect(languagePicker(second)).toHaveValue("zh-CN");
     await expect(secondSurface).toContainText(chinese("settings.appearance.transparency.title"));
+  } finally {
+    await harness.close();
+  }
+});
+
+// Decision D2: without a choice, Jarvis is in French, whatever the OS language.
+test("Jarvis shows French by default", async () => {
+  test.setTimeout(60_000);
+  const harness = await launchDesktop(await makeUserDataDir(), {
+    initialWorkspaces: [await makeWorkspace("settings-language-default")],
+    envOverrides: { JARVIS_UI_LOCALE: undefined },
+  });
+  try {
+    const window = await harness.firstWindow();
+    await expect(window.locator("html")).toHaveAttribute("lang", "fr");
+    const surface = await openAppearance(window);
+    await expect(languagePicker(window)).toHaveValue("fr");
+    await expect(surface.getByRole("heading", { name: "Apparence" })).toBeVisible();
   } finally {
     await harness.close();
   }

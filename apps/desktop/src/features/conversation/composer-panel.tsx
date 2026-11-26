@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import {
   type ClipboardEvent,
   type Dispatch,
@@ -153,6 +154,7 @@ export function ComposerPanel({
   extensionNotices,
   annotations,
 }: ComposerPanelProps) {
+  const { t } = useTranslation();
   const hasComposerInput =
     composerDraft.trim().length > 0 || attachments.length > 0 || annotations.list.length > 0;
   const primaryActionIsStop = selectedSession.status === "running" && !hasComposerInput;
@@ -202,7 +204,7 @@ export function ComposerPanel({
           onEnableMentionExtension={onEnableMentionExtension}
           textareaLabel="Composer"
           textareaTestId="composer"
-          textareaPlaceholder="Ask pi to inspect the repo, run a fix, or continue the current thread..."
+          textareaPlaceholder={t("composer.placeholder")}
           pinnedCards={pinnedCards}
           extensionDock={extensionDock}
           extensionDockExpanded={extensionDockExpanded}

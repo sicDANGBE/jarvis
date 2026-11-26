@@ -6,11 +6,13 @@ Inventaire de ce qui existe dans le code aujourd'hui, écran par écran. Légend
 - 🧱 **Socle non branché** : code présent et testé, mais aucun écran ni flux ne l'appelle ;
 - 📐 **Spécifié** : décrit dans la [spécification](specification.md), sans code.
 
-> **Langue de l'interface.** Les catalogues de traduction
-> ([`src/i18n/messages`](../apps/desktop/src/i18n/messages)) n'existent qu'en anglais (`en`) et en
-> chinois simplifié (`zh-CN`). L'interface de Jarvis s'affiche donc en anglais pour un poste
-> français. Seuls les messages des ajouts Jarvis (module `electron/jarvis/`, lanceur Linux) sont en
-> français. Les libellés anglais cités ci-dessous sont ceux de l'écran.
+> **Langue de l'interface.** Le **français est la langue par défaut** (décision D2), quelle que
+> soit la langue du système ; l'anglais et le chinois restent proposés dans **Apparence**. Le
+> catalogue français ([`fr.ts`](../apps/desktop/src/i18n/messages/fr.ts)) couvre toutes les clés,
+> mais une partie de l'interface (barre latérale, conversation, atelier) a encore des textes écrits
+> en dur en anglais : leur passage au catalogue est suivi dans l'issue
+> [#8](https://github.com/sicDANGBE/jarvis/issues/8). Les libellés anglais cités ci-dessous sont
+> ceux de ces écrans.
 
 ## Structure générale de la fenêtre
 

@@ -77,6 +77,7 @@ import type { DesktopAppState, DesktopAppViewState } from "../contracts/desktop-
 import {
   desktopCommands,
   desktopIpc,
+  uiLocaleArgumentPrefix,
   getDesktopCommandFromShortcut,
   isSinglePressCommand,
   isCloseFocusedSurfaceShortcut,
@@ -537,7 +538,12 @@ function createWindow(): BrowserWindow {
       sandbox: true,
       // Keep hidden test windows responsive so Playwright exercises the same UI flows.
       backgroundThrottling: !backgroundTestMode,
-      additionalArguments: windowChromeArguments(process.platform),
+      additionalArguments: [
+        ...windowChromeArguments(process.platform),
+        ...(process.env.JARVIS_UI_LOCALE
+          ? [`${uiLocaleArgumentPrefix}${process.env.JARVIS_UI_LOCALE}`]
+          : []),
+      ],
     },
   });
 

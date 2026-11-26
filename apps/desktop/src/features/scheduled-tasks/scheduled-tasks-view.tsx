@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { useMemo, useState } from "react";
 import type {
   DesktopAppState,
@@ -41,6 +42,7 @@ export function ScheduledTasksView({
   onCreateWithPi,
   onOpenEditor,
 }: ScheduledTasksViewProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ScheduledTaskFilter>("all");
   const [createOpen, setCreateOpen] = useState(false);
@@ -52,9 +54,7 @@ export function ScheduledTasksView({
       <header className="view-header">
         <div>
           <h1 className="view-header__title">Scheduled tasks</h1>
-          <p className="view-header__body">
-            Ask pi to schedule tasks, set reminders, or monitor for updates.
-          </p>
+          <p className="view-header__body">{t("scheduled.intro")}</p>
         </div>
         <div className="view-header__actions">
           <div className="scheduled-create">
