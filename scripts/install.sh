@@ -135,6 +135,12 @@ if [ -z "$found_icon" ] && [ -f "$INSTALL_DIR/app/jarvis.png" ]; then
   mkdir -p "$ICON_ROOT/512x512/apps"
   cp "$INSTALL_DIR/app/jarvis.png" "$ICON_ROOT/512x512/apps/jarvis.png"
 fi
+# Chemin absolu dans l'entrée de menu : certains thèmes ignorent la taille 1024x1024.
+icon_path="$INSTALL_DIR/jarvis.png"
+for candidate in "$INSTALL_DIR/app/jarvis.png" "$INSTALL_DIR"/app/usr/share/icons/hicolor/*/apps/jarvis.png; do
+  if [ -f "$candidate" ]; then cp "$candidate" "$icon_path" && break; fi
+done
+[ -f "$icon_path" ] || icon_path="jarvis"
 
 # Entrée du menu. Pas de --no-sandbox : le lanceur choisit la sandbox selon le poste.
 mkdir -p "$(dirname "$DESKTOP_FILE")"
@@ -145,7 +151,7 @@ Type=Application
 Name=Jarvis
 Comment=Assistant IA de bureau de l'agence
 Exec="$exec_path" %U
-Icon=jarvis
+Icon=$icon_path
 Terminal=false
 Categories=Office;
 StartupWMClass=Jarvis
