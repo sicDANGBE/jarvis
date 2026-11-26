@@ -47,7 +47,8 @@ test("listing every project keeps the caller's project and the most recent threa
   const result = owner().listThreadsToolResult(callerRef, "*");
   const threads = result.details.threads ?? [];
   expect(threads).toHaveLength(MAX_ALL_PROJECT_THREADS);
-  expect(threads[0]).toMatchObject({ threadId: "caller", relationship: "current" });
+  // Thread ids always carry their workspace (see docs/ssh-workspaces.md).
+  expect(threads[0]).toMatchObject({ threadId: "home:caller", relationship: "current" });
   // Newest first after the caller's own project; the oldest 51 others fall past the cap.
   expect(threads[1]?.threadId).toBe(`big:other-${others.length - 1}`);
   expect(threads.some((thread) => thread.threadId === "big:other-0")).toBe(false);

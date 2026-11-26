@@ -357,9 +357,9 @@ function CustomEndpointDialog({
             </span>
           </label>
           <label className="settings-field">
-            <span>API protocol</span>
+            <span>{t("ui.apiProtocol")}</span>
             <select
-              aria-label="API protocol"
+              aria-label={t("ui.apiProtocol")}
               className="settings-search"
               value={protocol}
               disabled={savePending}
@@ -371,11 +371,7 @@ function CustomEndpointDialog({
               <option value="openai-responses">OpenAI Responses</option>
               <option value="anthropic-messages">Anthropic Messages</option>
             </select>
-            <span className="settings-row__description">
-              For Anthropic Messages, use the service root (without /v1/messages); a trailing /v1 is
-              normalized on save. Model IDs can also be entered manually. Existing per-model
-              overrides in models.json are preserved.
-            </span>
+            <span className="settings-row__description">{t("ui.apiProtocolHelp")}</span>
           </label>
           <label className="settings-field">
             <span>{t("settings.provider.status.apiKey")}</span>
@@ -431,7 +427,7 @@ function CustomEndpointDialog({
               >
                 <input
                   type="checkbox"
-                  aria-label={`Reasoning supported: ${model.id}`}
+                  aria-label={t("ui.reasoningSupportedLabel", { id: model.id })}
                   checked={model.reasoning === true}
                   disabled={savePending}
                   onChange={(event) =>
@@ -444,7 +440,7 @@ function CustomEndpointDialog({
                     )
                   }
                 />
-                <span>{model.id}: supports reasoning</span>
+                <span>{t("ui.supportsReasoning", { id: model.id })}</span>
               </label>
             ))}
             <p className="settings-row__description">

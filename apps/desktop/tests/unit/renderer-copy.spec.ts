@@ -20,6 +20,9 @@ const technicalCopy = new Set([
   "/v1",
   "~/.pi/agent/models.json",
   "/bin/zsh",
+  "OpenAI Chat Completions",
+  "OpenAI Responses",
+  "Anthropic Messages",
 ]);
 const attributes = new Set([
   "title",
