@@ -66,6 +66,20 @@ rester.
   échappements dangereux, code mort), simplifier dans le périmètre et relancer les vérifications.
 - Mettre à jour la documentation de `docs/` dans le même commit que le comportement qu'elle décrit.
 
+## Tests de l'application (e2e)
+
+- Construire d'abord : `pnpm --filter @jarvis/desktop build` (ne pas reconstruire pendant qu'une
+  suite tourne : les tests chargent les paquets construits).
+- Lancer depuis `apps/desktop` avec un affichage : `DISPLAY=:99 PI_APP_TEST_LANE=core
+PI_APP_REAL_AUTH=0 PI_APP_TEST_MODE=background pnpm --dir ../.. exec playwright test -c
+apps/desktop/playwright.config.ts tests/core/<fichier>.spec.ts --trace off`.
+- Le harnais (`tests/helpers/electron-app.ts`) force l'anglais (`JARVIS_UI_LOCALE=en`) et autorise
+  root (`JARVIS_ALLOW_ROOT_FOR_TESTS=1`) ; un test qui vérifie le français retire la première
+  variable via `envOverrides`.
+- Sous Linux/Xvfb, 13 tests e2e échouent déjà sur le code d'origine (notifications macOS,
+  agrandissement de fenêtre, listage multi-projets) : liste dans l'issue #39. Comparer à cette
+  liste avant de conclure à une régression.
+
 ## Produit
 
 - Jarvis est l'assistant IA de bureau de l'agence, pour tous les collaborateurs, y compris les
