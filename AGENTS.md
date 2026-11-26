@@ -26,7 +26,7 @@ These rules apply for the full session.
 ## Structure
 
 - Prefer path-scoped guidance in nested `AGENTS.md` files over growing this file.
-- Follow the ownership and migration guidance in [docs/architecture.md](docs/architecture.md); target folders are not evidence that a migration is complete.
+- Follow the ownership and migration guidance in [docs/architecture.md](docs/architecture.md) and its detailed reference [docs/architecture-ownership.en.md](docs/architecture-ownership.en.md); target folders are not evidence that a migration is complete.
 - Keep the desktop renderer/main/preload boundary tight; avoid broad Node exposure to the renderer.
 - Keep `pi-sdk-driver` thin over `pi-mono`; don’t fork or reimplement `pi` runtime behavior unless necessary.
 

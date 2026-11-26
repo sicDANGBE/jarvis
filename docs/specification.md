@@ -1,5 +1,16 @@
 # Jarvis — spécification
 
+> **Statut du document.** Cette spécification décrit la cible de Jarvis. L'état réel de chaque
+> point est suivi dans [fonctionnalites.md](fonctionnalites.md) et [securite.md](securite.md).
+> Écarts relevés avec le code lors de la rédaction de la documentation :
+>
+> - §9 : la configuration MCP existe déjà dans l'application (réglages **MCP servers**, fichiers
+>   `mcp.json` de Pi) ; la phrase « Pi n'intègre pas MCP nativement » est à réviser.
+> - §3 « Machines » : les espaces de travail SSH sont déjà opérationnels.
+> - §2 « Paramètres simples » : l'interface n'est traduite qu'en anglais et en chinois ; le
+>   français n'est pas encore prévu explicitement.
+> - §11 : les ajouts restent dans `apps/desktop/electron/jarvis/`, toujours non branchés.
+
 Objectif : un assistant IA de bureau, façon Claude Desktop, pour **tous** les collaborateurs de
 l'agence, y compris les non techniciens. Distribution en **AppImage** installée dans la session de
 l'utilisateur, **sans sudo**.

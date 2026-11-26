@@ -33,7 +33,8 @@ sudo apparmor_parser -r /etc/apparmor.d/jarvis
 | Connexion OIDC, carte à puce (PKCS#11)                                                  | 📐 spécifié |
 | Documents LibreOffice, mail, diagrammes, Jira, mémoire, plugins et savoirs              | 📐 spécifié |
 
-La spécification complète est dans [`docs/agence/SPEC.md`](docs/agence/SPEC.md).
+La documentation complète (architecture, fonctionnalités, sécurité, exploitation, spécification,
+glossaire) est dans [`docs/`](docs/README.md).
 
 ## Développement
 
