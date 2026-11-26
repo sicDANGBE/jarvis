@@ -16,6 +16,11 @@ dans le code et ce qui reste à préciser. L'état actuel du code est décrit da
 | [D7](#d7--plateformes-et-mises-à-jour)                      | Plateformes et mises à jour                      | 2026-11-26 |
 | [D8](#d8--exécution-des-tâches-planifiées-hors-application) | Exécution des tâches planifiées hors application | 2026-11-26 |
 | [D9](#d9--autonomie-de-lappimage)                           | Autonomie de l'AppImage                          | 2026-11-26 |
+| [D10](#d10--projets-espaces-de-travail-et-discussions)      | Projets, espaces de travail et discussions       | 2026-11-26 |
+| [D11](#d11--conversations-annexes)                          | Conversations annexes                            | 2026-11-26 |
+| [D12](#d12--traçabilité-des-actions)                        | Traçabilité des actions                          | 2026-11-26 |
+| [D13](#d13--administration-et-catalogue-doutils)            | Administration et catalogue d'outils             | 2026-11-26 |
+| [D14](#d14--outils-bureautiques-et-navigateur)              | Outils bureautiques et navigateur                | 2026-11-26 |
 
 ## D1 — Source de la configuration
 
@@ -37,9 +42,11 @@ paquets, savoirs, options) a deux sources :
 - Le serveur n'existe pas encore : son API (voir [D4](#d4--configuration-propre-à-jarvis-et-initialisation))
   doit être spécifiée dans le dépôt pour que client et serveur puissent avancer séparément.
 
-**À préciser.** La forme du jeton admin (secret partagé, clé de signature locale, jeton émis par
-le serveur) et l'endroit où il est saisi ou déposé. La protection contre le retour à un bundle
-plus ancien (numéro de séquence ou comparaison d'`issuedAt`), signalée dans
+**Précisions (2026-11-26).** Le jeton admin est un **UUID v4**, réservé aux **versions de
+développement** : une version de production n'accepte aucune configuration locale.
+
+**À préciser.** L'endroit où le jeton est saisi ou déposé. La protection contre le retour à un
+bundle plus ancien (numéro de séquence ou comparaison d'`issuedAt`), signalée dans
 [securite.md](securite.md#configuration-centrale-signée-ed25519--).
 
 ## D2 — Langue
@@ -60,6 +67,9 @@ français.
 - La consigne « réponds en français » fait partie du prompt système de l'agence
   ([D1](#d1--source-de-la-configuration)), avec une valeur par défaut intégrée à Jarvis quand aucune
   configuration n'est chargée.
+
+**Précisions (2026-11-26).** On **garde le catalogue anglais** pour le moment, à côté du
+français par défaut. Le catalogue `zh-CN` n'a plus d'usage.
 
 **À préciser.** Le maintien ou non d'un sélecteur de langue dans les réglages.
 
@@ -106,8 +116,13 @@ Scénario cible :
 - Il faut définir comment la configuration initiale est livrée avec le client (fichier à côté de
   l'AppImage, paramètre de premier lancement, valeur intégrée au build de l'agence).
 
-**À préciser.** Le contrat de l'appel d'initialisation (authentification, contenu de la réponse,
-fréquence de rafraîchissement, comportement hors ligne).
+**Précisions (2026-11-26).** Le contrat de l'appel d'initialisation sera **défini ensemble, à
+partir des besoins**. Il porte au moins la configuration, les modèles (servis par LiteLLM, voir
+[D6](#d6--authentification)), la liste des outils validés ([D13](#d13--administration-et-catalogue-doutils))
+et les métadonnées de mise à jour ([D7](#d7--plateformes-et-mises-à-jour)).
+
+**À préciser.** Authentification de l'appel, fréquence de rafraîchissement, comportement hors
+ligne.
 
 ## D5 — Coffre-fort de secrets
 
@@ -132,9 +147,12 @@ utilisation d'un secret exige :
 - Les limites du masquage relevées dans [securite.md](securite.md#coffre-de-secrets--) restent à
   traiter.
 
-**À préciser.** L'organisation du coffre (groupes, champs par entrée, pièces jointes), un
-éventuel mot de passe maître en plus du trousseau du système, la durée de validité d'une
-autorisation ponctuelle.
+**Précisions (2026-11-26).** La session de l'utilisateur est **déjà déverrouillée** par le SSO,
+l'OIDC ou la carte PKCS#11 : pas de mot de passe maître supplémentaire. Les secrets d'un
+**projet** sont portés par ce projet ([D10](#d10--projets-espaces-de-travail-et-discussions)).
+
+**À préciser.** L'organisation du coffre (groupes, champs par entrée, pièces jointes), la durée
+de validité d'une autorisation ponctuelle.
 
 ## D6 — Authentification
 
@@ -160,9 +178,12 @@ proxy d'authentification utilisé aujourd'hui avec opencode.
 - Le schéma OIDC et PKCS#11 de la [spécification](specification.md#7-bis-authentification--oidc-et-pkcs11)
   reste la base ; il passe d'un seul fournisseur à plusieurs.
 
-**À préciser.** La liste des destinations à authentifier (serveur de configuration, passerelle de
-modèles, outils internes), le nom et le contenu des en-têtes, le comportement à l'expiration de la
-session.
+**Précisions (2026-11-26).** Les modèles sont servis par une passerelle **LiteLLM** : c'est la
+destination principale à authentifier, avec le serveur de configuration. La session est ouverte
+par SSO, OIDC ou PKCS#11 avant l'usage de Jarvis.
+
+**À préciser.** Les autres destinations (outils internes), le nom et le contenu des en-têtes, le
+comportement à l'expiration de la session.
 
 ## D7 — Plateformes et mises à jour
 
@@ -186,6 +207,10 @@ Si la mise à jour automatique de l'AppImage l'exige, l'**AppImage est signée**
   release : une signature (de l'AppImage ou du manifeste) est nécessaire.
 - La CI doit construire et vérifier les cibles macOS et Windows ; la signature macOS demande un
   compte développeur Apple, la signature Windows un certificat.
+
+**Précisions (2026-11-26).** Le marqueur `forced` est porté par les **métadonnées du serveur
+distant**, pour les mises à jour de l'application **et** pour celles de la configuration. Il
+servira surtout aux correctifs de bugs et de vulnérabilités.
 
 **À préciser.** Le moment d'installation d'une version `forced` (au prochain démarrage, ou
 immédiatement avec redémarrage), et la clé ou le certificat de signature.
@@ -231,6 +256,107 @@ requise sur le poste.
 - Les espaces de travail SSH demandent aujourd'hui Node et Pi sur la machine distante ; leur cas
   est à trancher séparément, la décision portant sur le poste local.
 
+**Précisions (2026-11-26).** Pour le moment, seul le **fonctionnement local** est concerné ; les
+espaces de travail SSH sont hors périmètre.
+
 **À préciser.** Le comportement des fonctions qui s'appuient sur des outils du poste (Git pour la
-revue et les worktrees, éditeurs, `soffice` prévu pour les documents) : dépendance assumée, ou
-fonction masquée si l'outil manque.
+revue et les worktrees, éditeurs, suite bureautique) : dépendance assumée, ou fonction masquée si
+l'outil manque.
+
+## D10 — Projets, espaces de travail et discussions
+
+**Décision.** Trois niveaux d'organisation :
+
+| Niveau                | Rôle                                                                                   | Contient                                     |
+| --------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **Projet**            | Unité de gestion la plus haute. Porte les **secrets**, les **droits** et les réglages. | 0 à n espaces de travail, et des discussions |
+| **Espace de travail** | Gestionnaire de discussions.                                                           | 1 à n discussions                            |
+| **Discussion**        | Une conversation (avec ses conversations annexes, [D11](#d11--conversations-annexes)). | —                                            |
+
+- Une discussion appartient à un espace de travail ou directement à un projet.
+- Un espace de travail peut être créé seul, puis **rattaché à un projet** plus tard ; il hérite
+  alors des secrets et des droits du projet.
+- La barre latérale trie les discussions **par projet** ou **par date**, au choix de l'utilisateur.
+
+**Conséquences.** Aujourd'hui, l'unité est le dossier (« workspace ») et ses fils : la notion de
+projet n'existe pas. Il faut l'ajouter au catalogue ([`@jarvis/catalogs`](../packages/catalogs)),
+définir l'héritage des secrets ([D5](#d5--coffre-fort-de-secrets)) et des droits, et revoir la barre
+latérale. Un espace de travail n'est plus forcément un dossier du disque.
+
+**À préciser.** Ce que recouvrent les « droits » d'un projet (outils autorisés, secrets, modèles,
+partage entre utilisateurs ?). Le lien entre espace de travail et dossier du disque.
+
+## D11 — Conversations annexes
+
+**Décision.** Une discussion **principale** peut porter des **conversations annexes** (filles) :
+
+- l'utilisateur sélectionne une partie de la conversation (une notion qu'il ne maîtrise pas, un
+  passage d'un compte rendu) et ouvre une conversation annexe dessus ;
+- la conversation annexe est traitée **en parallèle**, **sans polluer** le fil ni perturber le
+  travail de la conversation principale ;
+- un **bouton** (ou une demande explicite) **réintègre** le contenu de la conversation annexe dans
+  la conversation principale ;
+- **un seul niveau** : une conversation annexe n'a pas elle-même de conversation annexe.
+
+**Conséquences.** Le code a déjà deux briques proches : les fils enfants créés par l'agent
+(orchestration, `parentSessionId`) et la sélection « ajouter au chat » (`Ctrl+L`,
+[`annotations/`](../apps/desktop/src/features/conversation/annotations)). Une conversation annexe
+reprend le contexte de la conversation principale au moment de sa création, sans y écrire ; la
+réintégration ajoute un message explicite (résumé ou contenu choisi) dans la conversation
+principale.
+
+**À préciser.** Ce que la conversation annexe reçoit du contexte (tout l'historique, ou seulement
+la sélection et un résumé), la forme de la réintégration (résumé généré ou texte brut), l'affichage
+(panneau latéral, onglet).
+
+## D12 — Traçabilité des actions
+
+**Décision.** Toutes les actions du harness sont **tracées** : commandes exécutées, appels
+d'outils, accès aux secrets.
+
+- Durée de conservation **configurable**, **14 jours** par défaut.
+- Possibilité de **journaliser les commandes sans leur contenu** : le contenu reste privé, au moins
+  dans un premier temps.
+- La conservation des traces doit **respecter la législation** applicable.
+
+**Conséquences.** Il faut un journal d'audit local, en ajout seul, avec rotation selon la durée
+configurée ; un écran pour le consulter ; une politique fixée par la configuration centrale
+([D1](#d1--source-de-la-configuration)). La remontée vers le serveur reste à décider.
+
+**À préciser.** Les obligations légales visées (RGPD, durée minimale de conservation des journaux
+de connexion selon le statut de l'agence), la remontée des traces vers le serveur, qui peut les
+consulter.
+
+## D13 — Administration et catalogue d'outils
+
+**Décision.**
+
+- Le serveur **valide la liste des outils** disponibles et peut en **proposer** d'autres.
+- Des **sessions administrateur** donnent bien plus d'options que les sessions ordinaires.
+- On doit pouvoir **proposer facilement des serveurs MCP** et une **bibliothèque de plugins**.
+
+**Conséquences.** La liste des outils autorisés fait partie de la réponse d'initialisation
+([D4](#d4--configuration-propre-à-jarvis-et-initialisation)). Le rôle administrateur vient de
+l'identité ([D6](#d6--authentification)), par exemple un groupe Keycloak. L'écran **MCP servers**
+et la page **Skills and extensions** existants servent de base au catalogue.
+
+**À préciser.** La liste des options réservées aux administrateurs, le format d'un plugin du
+catalogue (paquet Pi, serveur MCP, compétence), la procédure de validation.
+
+## D14 — Outils bureautiques et navigateur
+
+**Décision.**
+
+- Jarvis intègre un **navigateur**.
+- Il propose des outils **draw.io** et une **suite bureautique** (traitement de texte, tableur
+  type Excel/Calc, présentation) basée sur **LibreOffice/OpenOffice**.
+- L'utilisateur peut **fournir sa propre suite bureautique**.
+
+**Conséquences.** Une suite bureautique embarquée alourdirait fortement l'AppImage
+([D9](#d9--autonomie-de-lappimage)) : à arbitrer entre une suite fournie par le poste (détectée,
+ou choisie par l'utilisateur) et une suite embarquée. Le navigateur intégré s'appuierait sur
+Electron (`WebContentsView`), avec les règles de sorties réseau ([`egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)).
+
+**À préciser.** Le rôle du navigateur (consultation par l'utilisateur, outil piloté par l'agent,
+les deux), l'outil draw.io (éditeur embarqué ou rendu de fichiers), le mode d'intégration de la
+suite bureautique (ouverture externe, conversion en tâche de fond, édition dans Jarvis).
