@@ -22,6 +22,7 @@ Cette documentation décrit **l'état réel du code**. Chaque fonctionnalité y 
 | [Sécurité](securite.md)               | Configuration signée, sorties réseau, coffre de secrets, sandbox, daemon, OIDC/PKCS#11, limites. |
 | [Exploitation](exploitation.md)       | Installation, profil AppArmor, clé Ed25519 et signature, workflow de release, variables.         |
 | [Spécification](specification.md)     | La cible fonctionnelle de Jarvis (document de référence produit).                                |
+| [Décisions](decisions.md)             | Décisions de direction prises pour le plan de développement.                                     |
 | [Glossaire](glossaire.md)             | Les termes employés dans le code et la documentation.                                            |
 
 ## Documents techniques hérités (en anglais)
