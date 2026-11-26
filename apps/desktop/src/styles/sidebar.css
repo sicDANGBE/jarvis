@@ -1042,3 +1042,83 @@
 .enable-transparency.dark .sidebar {
   backdrop-filter: var(--glass-blur) var(--glass-saturation);
 }
+
+/* User block at the bottom of the sidebar (issue #25). */
+.sidebar-account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-account__identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-account__identity:hover,
+.sidebar-account__settings:hover {
+  background: var(--overlay-hover);
+}
+
+.sidebar-account__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-round);
+  background: #4338ca;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sidebar-account__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.sidebar-account__plan {
+  flex: none;
+  color: var(--muted-strong);
+  font-size: var(--text-xs);
+}
+
+.sidebar-account__plan::before {
+  content: "· ";
+}
+
+.sidebar-account__settings {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+
+.sidebar-account__settings svg {
+  width: 16px;
+  height: 16px;
+}

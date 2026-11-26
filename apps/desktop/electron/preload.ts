@@ -1,3 +1,4 @@
+import type { DesktopUser } from "../contracts/user";
 import type {
   ExtensionViewOpenFile,
   DesktopExtensionViewInfo,
@@ -6,6 +7,7 @@ import type {
   ExtensionViewMessage,
   ExtensionViewCatalogChange,
 } from "../contracts/extension-views";
+import type { NetworkActivityEvent, NetworkActivityListener } from "../contracts/network";
 import { contextBridge, ipcRenderer, webUtils } from "electron";
 import { PRELOAD_DEV_RELOAD_MARKER } from "./dev-reload-preload-probe";
 import {
@@ -168,6 +170,19 @@ contextBridge.exposeInMainWorld("piApp", {
       desktopIpc.changeReviewFileStage,
       input,
     ) as Promise<ChangeReviewFileStageResult>,
+  getCurrentUser: () =>
+    ipcRenderer.invoke(desktopIpc.getCurrentUser) as Promise<DesktopUser | undefined>,
+  getNetworkActivity: () =>
+    ipcRenderer.invoke(desktopIpc.getNetworkActivity) as Promise<readonly NetworkActivityEvent[]>,
+  onNetworkActivity: (listener: NetworkActivityListener) => {
+    const handle = (_event: Electron.IpcRendererEvent, activity: NetworkActivityEvent) => {
+      listener(activity);
+    };
+    ipcRenderer.on(desktopIpc.networkActivity, handle);
+    return () => {
+      ipcRenderer.removeListener(desktopIpc.networkActivity, handle);
+    };
+  },
   onStateChanged: (listener: PiDesktopStateListener) => {
     const handle = (_event: Electron.IpcRendererEvent, state: PiDesktopStatePush) => {
       listener(state);

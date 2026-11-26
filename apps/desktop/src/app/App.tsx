@@ -1,3 +1,4 @@
+import { NetworkNotices } from "../features/network/network-notices";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RuntimeSnapshot } from "@jarvis/session-driver/runtime-types";
 import {
@@ -979,6 +980,7 @@ export default function App() {
 
   return (
     <div className={shellClassName}>
+      <NetworkNotices />
       {primarySidebarToggleVisible ? (
         <SidebarToggleButton
           collapsed={snapshot.sidebarCollapsed}

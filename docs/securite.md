@@ -12,7 +12,8 @@ que sous forme de socle (code testé mais non branché) ou de spécification.
 | Lanceur Linux et sandbox Chromium                  | ✅ Opérationnel       | [`scripts/after-pack-linux-launcher.cjs`](../apps/desktop/scripts/after-pack-linux-launcher.cjs) |
 | Profil AppArmor pour l'admin                       | ✅ Fourni, à déployer | [`resources/linux/apparmor-jarvis`](../apps/desktop/resources/linux/apparmor-jarvis)             |
 | Configuration signée Ed25519                       | 🧱 Socle non branché  | [`electron/jarvis/managed-config.ts`](../apps/desktop/electron/jarvis/managed-config.ts)         |
-| Contrôle des sorties réseau                        | 🧱 Socle non branché  | [`electron/jarvis/egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)             |
+| Passerelle réseau (intranet par défaut)            | ✅ Opérationnel       | [`electron/jarvis/network-gateway.ts`](../apps/desktop/electron/jarvis/network-gateway.ts)       |
+| `fetch` gardé des outils (`egress-guard`)          | 🧱 Socle non branché  | [`electron/jarvis/egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)             |
 | Coffre de secrets                                  | 🧱 Socle non branché  | [`electron/jarvis/secret-vault.ts`](../apps/desktop/electron/jarvis/secret-vault.ts)             |
 | Daemon et autostart sans root                      | 🧱 Socle non branché  | [`electron/jarvis/user-daemon.ts`](../apps/desktop/electron/jarvis/user-daemon.ts)               |
 | OIDC, PKCS#11                                      | 📐 Spécifié           | [specification.md §7 bis](specification.md#7-bis-authentification--oidc-et-pkcs11)               |
@@ -96,9 +97,56 @@ Le format et la procédure de signature sont décrits dans [exploitation.md](exp
   n'a plus de configuration (`source: "none"`) ; le comportement attendu dans ce cas n'est pas
   défini.
 
-## Contrôle des sorties réseau — 🧱
+## Passerelle réseau — ✅
 
-`createEgressGuard` applique une politique :
+Règle du projet : **aucune métrique ni télémétrie ne sort du poste**, **intranet par défaut**, et
+**l'utilisateur est averti de chaque tentative d'accès réseau** (issue
+[#40](https://github.com/sicDANGBE/jarvis/issues/40)).
+
+[`network-gateway.ts`](../apps/desktop/electron/jarvis/network-gateway.ts) est installée dans
+`main.ts` avant tout autre code :
+
+- **Sockets Node du process main** : `net.Socket.prototype.connect` est intercepté. Tout ce qui
+  passe par `net`, `tls`, `http`, `https` ou `fetch` (SDK des fournisseurs, Pi, MCP en HTTP,
+  vérification de mise à jour) est concerné. Une adresse littérale est jugée immédiatement ; un nom
+  d'hôte l'est **après sa résolution DNS et avant la connexion** : un nom qui se résout vers une
+  adresse publique est bloqué, quel que soit son nom.
+- **Chromium** : chaque session (`session-created`) reçoit un filtre `webRequest` qui applique la
+  même politique aux requêtes `http`, `https`, `ws` et `wss` des fenêtres.
+- **Politique** : `intranet` par défaut (boucle locale ; adresses privées 10/8, 172.16/12,
+  192.168/16, 100.64/10, 169.254/16, IPv6 ULA et lien local ; hôtes autorisés par la
+  configuration), `allowlist`, `deny-all` ou `open`. Un nom qui se résout à la fois vers
+  l'intranet et vers Internet est bloqué. La politique viendra de la configuration de l'agence
+  (issues #3 et #4).
+- **Avertissement** : chaque tentative, autorisée ou bloquée, est envoyée aux fenêtres et affichée
+  en bas à droite (`NetworkNotices`), avec l'hôte, l'adresse et la raison. La boucle locale n'est pas
+  signalée (ce n'est pas du réseau). Les 200 dernières tentatives sont consultables
+  (`getNetworkActivity`).
+- **Appels propres à Jarvis** : la vérification automatique des mises à jour (GitHub, donc
+  Internet) n'est **pas lancée** tant que la politique ne l'autorise pas ; la vérification manuelle
+  passe par la passerelle et l'utilisateur voit le refus. Le correcteur orthographique de Chromium,
+  qui télécharge ses dictionnaires chez Google, est désactivé.
+- **Télémétrie** : Pi n'active aucune télémétrie par défaut (adaptateur « noop ») ; Electron et
+  Jarvis n'en envoient pas. La passerelle bloquerait de toute façon un envoi vers Internet.
+
+Tests : [`jarvis-network.spec.ts`](../apps/desktop/tests/unit/jarvis-network.spec.ts) (vraies
+sockets) et [`network-gateway.spec.ts`](../apps/desktop/tests/core/network-gateway.spec.ts)
+(application Electron).
+
+**Limites connues**
+
+- Les **processus enfants** ont leurs propres sockets et ne passent pas par la passerelle :
+  terminal intégré, outil `bash` de Pi, serveurs MCP lancés en stdio, `git`, `ssh`. Pour eux, la
+  barrière reste le pare-feu ou le proxy de l'agence.
+- Avec un **proxy** (`NODE_USE_ENV_PROXY` côté Node, proxy système côté Chromium), la passerelle
+  Node voit l'adresse du proxy et non la destination finale : un proxy de l'intranet qui relaie
+  vers Internet n'est pas bloqué côté Node. Côté Chromium, l'URL réelle est contrôlée.
+- La décision repose sur la résolution DNS faite par la passerelle ; un serveur DNS de l'intranet
+  compromis peut toujours orienter une connexion vers une autre adresse privée.
+
+### `fetch` gardé des outils — 🧱
+
+`createEgressGuard` applique une politique par URL :
 
 - `open` : tout hôte en `https` ;
 - `allowlist` : seulement les hôtes listés. Motifs acceptés : hôte exact (`api.agence.fr`),
@@ -108,18 +156,8 @@ Le format et la procédure de signature sont décrits dans [exploitation.md](exp
 Dans tous les modes, `https` est exigé (sauf `http` vers `localhost`, `127.0.0.1`, `::1`) et les
 identifiants dans l'URL (`user:pass@`) sont refusés. `createGuardedFetch` vérifie l'URL avant
 l'appel, désactive le suivi automatique des redirections et refuse une redirection vers un hôte non
-autorisé.
-
-**Limites connues**
-
-- Rien n'utilise ce `fetch` gardé aujourd'hui.
-- Même branché, il ne couvre que les outils de Jarvis qui passent par lui. Il ne couvre **pas** :
-  les appels de Pi vers les fournisseurs de modèles, l'outil `bash` de Pi, les serveurs MCP, les
-  extensions Pi, le terminal intégré, l'hôte SSH. La spécification l'assume : la vraie barrière
-  reste le pare-feu ou le proxy de l'agence.
-- Une redirection autorisée n'est pas suivie : la réponse 3xx est rendue telle quelle à l'appelant.
-- Le contrôle porte sur le nom d'hôte, pas sur l'adresse IP résolue (pas de protection contre un
-  DNS qui pointerait un nom autorisé vers une adresse interne).
+autorisé. Il complète la passerelle pour les outils de Jarvis (exigence de `https`), mais n'est pas
+encore utilisé ; ses motifs d'hôtes sont réutilisés par la passerelle.
 
 ## Coffre de secrets — 🧱
 
@@ -201,8 +239,8 @@ poste ; voir [exploitation.md](exploitation.md).
 
 - Rien n'appelle ce code, et `main.ts` ne gère ni `--background` ni `--daemon --run-due` : des
   unités installées lanceraient l'application complète à chaque passage du timer.
-- `assertNotRoot` n'est appelé nulle part au démarrage : l'application se lance aujourd'hui en
-  root si on le lui demande.
+- Le refus de root est actif au démarrage de l'application (`main.ts`, issue #11) ; le harnais
+  de test l'autorise explicitement (`JARVIS_ALLOW_ROOT_FOR_TESTS=1`) pour les conteneurs root.
 - Le service n'a pas de durcissement systemd (`NoNewPrivileges`, `ProtectSystem`…) : c'est un
   choix documenté dans le code, car le montage d'une AppImage passe par `fusermount` (setuid).
 - Le verrou de fichier prévu pour qu'un seul exécuteur traite `scheduled-tasks.json` n'existe pas.

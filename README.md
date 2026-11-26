@@ -40,7 +40,8 @@ sudo apparmor_parser -r /etc/apparmor.d/jarvis
 | Conversations en cours et passées, paramètres, fournisseurs de modèles                  | ✅          |
 | Espaces de travail distants via SSH                                                     | ✅          |
 | Tâches planifiées (application ouverte)                                                 | ✅          |
-| Configuration et prompt système centralisés et signés, contrôle des sorties réseau      | 🧱 socle    |
+| Passerelle réseau : intranet par défaut, chaque accès réseau signalé                    | ✅          |
+| Configuration et prompt système centralisés et signés                                   | 🧱 socle    |
 | Coffre de secrets (trousseau système)                                                   | 🧱 socle    |
 | Daemon utilisateur (tâches même application fermée), démarrage à l'ouverture de session | 🧱 socle    |
 | Connexion OIDC, carte à puce (PKCS#11)                                                  | 📐 spécifié |

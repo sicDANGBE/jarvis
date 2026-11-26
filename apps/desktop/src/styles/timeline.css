@@ -854,6 +854,45 @@
   white-space: inherit;
 }
 
+/* Code block with its Copy button (issue #22): visible on hover and keyboard focus. */
+.message__code-block {
+  position: relative;
+  min-width: 0;
+}
+
+.message__code-block pre {
+  padding-right: 40px;
+}
+
+.message__code-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  background: var(--code-block-bg);
+  color: var(--code-ink);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.message__code-block:hover .message__code-copy,
+.message__code-copy:focus-visible,
+.message__code-copy[data-copied="true"] {
+  opacity: 1;
+}
+
+.message__code-copy svg {
+  width: 14px;
+  height: 14px;
+}
+
 .message__content blockquote {
   padding-left: 12px;
   border-left: 3px solid var(--line-strong);

@@ -7,6 +7,17 @@
 import type { PluralCategory, PluralVariantKey } from "../plural";
 
 export const en = {
+  "account.label": "Account: {name}",
+  "account.guest": "User",
+  "account.admin": "Admin",
+  "account.settings": "Settings",
+  "message.copyCode": "Copy code",
+  "message.codeCopied": "Copied",
+  "network.region": "Network access",
+  "network.allowed": "Network access: {host}",
+  "network.blocked": "Network access blocked: {host}",
+  "network.repeated": "{count} attempts",
+  "network.dismiss": "Dismiss",
   "models.enabledCount": "{enabled} of {total}",
   "models.count": "{count} models",
   "models.count_one": "{count} model",

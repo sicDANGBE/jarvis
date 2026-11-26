@@ -1,6 +1,8 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTranslation } from "../../i18n";
+import { CheckIcon, CopyIcon } from "../../ui/icons";
 import {
   remarkWorkspaceFileLines,
   workspaceFileLineFromAnchorProps,
@@ -8,11 +10,51 @@ import {
 } from "./workspace-file-line";
 
 const REMARK_PLUGINS = [remarkGfm];
+const COPIED_FEEDBACK_MS = 1_500;
+
+/**
+ * A code block with a Copy button (issue #22). The button holds only an icon, so it adds no
+ * text to the message: transcript annotations count characters of the rendered text.
+ */
+function CodeBlock({ children }: { readonly children?: ReactNode }) {
+  const { t } = useTranslation();
+  const preRef = useRef<HTMLPreElement>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const timer = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const copy = () => {
+    const text = preRef.current?.textContent ?? "";
+    void navigator.clipboard.writeText(text).then(
+      () => setCopied(true),
+      (error: unknown) => console.error("[renderer] navigator.clipboard.writeText failed", error),
+    );
+  };
+  return (
+    <div className="message__code-block">
+      <pre ref={preRef}>{children}</pre>
+      <button
+        type="button"
+        className="message__code-copy"
+        data-testid="code-copy"
+        data-copied={copied ? "true" : undefined}
+        aria-label={copied ? t("message.codeCopied") : t("message.copyCode")}
+        title={copied ? t("message.codeCopied") : t("message.copyCode")}
+        onClick={copy}
+      >
+        {copied ? <CheckIcon /> : <CopyIcon />}
+      </button>
+    </div>
+  );
+}
 
 function markdownComponents(
   onOpenWorkspaceFileLine?: (target: WorkspaceFileLine) => void,
 ): Components {
   return {
+    pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
     code: ({ className, children }) => {
       const code = String(children).replace(/\n$/, "");
       return <code className={className}>{code}</code>;

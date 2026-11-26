@@ -1,3 +1,5 @@
+import type { DesktopUser } from "../../contracts/user";
+import type { NetworkActivityEvent } from "../../contracts/network";
 import { ipcMain, shell, type BrowserWindow, type IpcMainInvokeEvent } from "electron";
 import path from "node:path";
 import type { SessionRef } from "@jarvis/session-driver";
@@ -186,6 +188,8 @@ export interface DesktopIpcOwners {
 
 export interface DesktopIpcCapabilities {
   readonly ping: () => string;
+  readonly networkActivity: () => readonly NetworkActivityEvent[];
+  readonly currentUser: () => DesktopUser | undefined;
   readonly theme: ThemeManager;
   readonly editors: EditorService;
   readonly openExternal: (url: string) => Promise<void>;
@@ -294,6 +298,14 @@ export function registerDesktopIpc({
     }
   };
 
+  ipcMain.handle(desktopIpc.getCurrentUser, (event) => {
+    windows.windowForSender(event.sender);
+    return capabilities.currentUser();
+  });
+  ipcMain.handle(desktopIpc.getNetworkActivity, (event) => {
+    windows.windowForSender(event.sender);
+    return capabilities.networkActivity();
+  });
   ipcMain.handle(desktopIpc.ping, (event) => {
     windows.windowForSender(event.sender);
     return capabilities.ping();

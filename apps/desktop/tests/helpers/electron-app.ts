@@ -433,6 +433,8 @@ function buildDesktopLaunchEnv(
       ? { PI_APP_NOTIFICATION_LOG_PATH: options.notificationLogPath }
       : {}),
     PI_APP_OPEN_DEVTOOLS: "0",
+    // Jarvis refuses to run as root (issue #11); test containers often are root.
+    JARVIS_ALLOW_ROOT_FOR_TESTS: "1",
     ...(options.envOverrides ?? {}),
   };
   for (const [key, value] of Object.entries(options.envOverrides ?? {})) {

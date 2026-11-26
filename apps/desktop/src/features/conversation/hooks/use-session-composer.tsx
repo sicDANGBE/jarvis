@@ -1,3 +1,4 @@
+import { isComposerSubmitKey } from "../composer-keys";
 import {
   type ClipboardEvent,
   type Dispatch,
@@ -366,18 +367,13 @@ export function useSessionComposer(params: UseSessionComposerParams) {
       return;
     }
 
-    if (
-      event.key === "Enter" &&
-      !event.shiftKey &&
-      !event.nativeEvent.isComposing &&
-      selectedSession?.status === "running"
-    ) {
+    if (isComposerSubmitKey(event) && selectedSession?.status === "running") {
       event.preventDefault();
       submitComposerDraft({ deliverAs: event.metaKey || event.ctrlKey ? "steer" : "followUp" });
       return;
     }
 
-    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+    if (!isComposerSubmitKey(event)) {
       return;
     }
 

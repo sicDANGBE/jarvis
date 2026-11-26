@@ -30,17 +30,18 @@ Les vues principales sont définies dans
 
 Code : [`src/features/threads`](../apps/desktop/src/features/threads).
 
-| Fonctionnalité                                                                                                                                 | État |
-| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| Ouvrir un dossier local comme espace de travail ; retirer un dossier (sans supprimer ses fichiers)                                             | ✅   |
-| Fils groupés par dossier, fils épinglés et récents, tri par activité                                                                           | ✅   |
-| Actions sur un fil : renommer, épingler, archiver ou restaurer, marquer comme lu, ajouter une tâche planifiée, copier l'identifiant de session | ✅   |
-| Ouvrir le dossier du fil dans un éditeur détecté ou dans le gestionnaire de fichiers                                                           | ✅   |
-| Changement rapide de fil (sélecteur et raccourcis)                                                                                             | ✅   |
-| Découverte des sessions Pi existantes du dossier (créées par Pi en terminal)                                                                   | ✅   |
-| Worktrees Git : créer un fil dans un worktree isolé (« Worktree », « Fork environment »)                                                       | ✅   |
-| Espaces de travail distants via SSH (alias de `~/.ssh/config`, dossier Linux absolu)                                                           | ✅   |
-| Personnalisation de la barre latérale (regroupement)                                                                                           | ✅   |
+| Fonctionnalité                                                                                                                                  | État |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| Ouvrir un dossier local comme espace de travail ; retirer un dossier (sans supprimer ses fichiers)                                              | ✅   |
+| Fils groupés par dossier, fils épinglés et récents, tri par activité                                                                            | ✅   |
+| Actions sur un fil : renommer, épingler, archiver ou restaurer, marquer comme lu, ajouter une tâche planifiée, copier l'identifiant de session  | ✅   |
+| Ouvrir le dossier du fil dans un éditeur détecté ou dans le gestionnaire de fichiers                                                            | ✅   |
+| Changement rapide de fil (sélecteur et raccourcis)                                                                                              | ✅   |
+| Découverte des sessions Pi existantes du dossier (créées par Pi en terminal)                                                                    | ✅   |
+| Worktrees Git : créer un fil dans un worktree isolé (« Worktree », « Fork environment »)                                                        | ✅   |
+| Espaces de travail distants via SSH (alias de `~/.ssh/config`, dossier Linux absolu)                                                            | ✅   |
+| Personnalisation de la barre latérale (regroupement)                                                                                            | ✅   |
+| Bloc utilisateur en bas de la barre latérale : prénom, rôle ou forfait, accès aux réglages (utilisateur simulé administrateur en développement) | ✅   |
 
 Pour SSH, l'authentification passe par OpenSSH en mode `BatchMode` (clés déjà configurées) ; Node
 et Pi doivent être installés sur la machine distante, où Jarvis installe un petit hôte
@@ -63,6 +64,9 @@ Code : [`src/features/conversation`](../apps/desktop/src/features/conversation).
 | Fonctionnalité                                                                                     | État |
 | -------------------------------------------------------------------------------------------------- | ---- |
 | Envoi de messages, réponse en flux, rendu Markdown (GFM), coloration syntaxique                    | ✅   |
+| Bouton « Copier » sur chaque bloc de code                                                          | ✅   |
+| `Entrée` envoie ; `Maj+Entrée` et l'`Entrée` du pavé numérique ajoutent une ligne                  | ✅   |
+| Consignes de Jarvis ajoutées au prompt système : réponses en français par défaut                   | ✅   |
 | Bouton « Stop » qui interrompt l'exécution en cours                                                | ✅   |
 | File de messages : écrire pendant que l'agent travaille, modifier ou retirer un message en attente | ✅   |
 | Pièces jointes (fichiers, images collées ou glissées), aperçu des images                           | ✅   |
@@ -155,11 +159,11 @@ Code : [`src/features/settings`](../apps/desktop/src/features/settings). Rubriqu
 Code : [`platform/update-checker.ts`](../apps/desktop/electron/platform/update-checker.ts),
 [`platform/release-source.ts`](../apps/desktop/electron/platform/release-source.ts).
 
-| Fonctionnalité                                                                                                      | État                                   |
-| ------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| Vérification de la dernière release **stable** de `sicDANGBE/jarvis` (15 s après le lancement, puis toutes les 4 h) | ✅                                     |
-| Sous Linux : notification puis ouverture de la page de la release (pas de mise à jour automatique de l'AppImage)    | ✅                                     |
-| Sous Windows : téléchargement vérifié (manifeste et SHA-256) et installation au redémarrage                         | ✅ (non construit par la CI de Jarvis) |
+| Fonctionnalité                                                                                                                                                            | État                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Vérification de la dernière release **stable** de `sicDANGBE/jarvis` (15 s après le lancement, puis toutes les 4 h), **seulement si la politique réseau autorise GitHub** | ✅                                     |
+| Sous Linux : notification puis ouverture de la page de la release (pas de mise à jour automatique de l'AppImage)                                                          | ✅                                     |
+| Sous Windows : téléchargement vérifié (manifeste et SHA-256) et installation au redémarrage                                                                               | ✅ (non construit par la CI de Jarvis) |
 
 L'API `/releases/latest` ignore les pré-releases : une installation `nightly` n'est jamais avertie
 d'une nouvelle `nightly`, et tant qu'aucune release stable `vX.Y.Z` n'existe, la vérification
@@ -169,16 +173,17 @@ manuelle répond « No stable Jarvis release has been published yet ».
 
 Détails : [securite.md](securite.md).
 
-| Fonctionnalité                                                                                    | État |
-| ------------------------------------------------------------------------------------------------- | ---- |
-| Lanceur Linux qui choisit la sandbox Chromium ; profil AppArmor optionnel pour l'admin            | ✅   |
-| Configuration centrale signée Ed25519 (prompt système, sorties réseau, modèles, paquets, savoirs) | 🧱   |
-| Garde de sortie réseau (liste d'hôtes autorisés, refus des redirections hors liste)               | 🧱   |
-| Coffre de secrets chiffré, références `{{secret:nom}}`, masquage des sorties                      | 🧱   |
-| Filtre « ceci ressemble à un secret » pour la mémoire                                             | 🧱   |
-| Refus de démarrer en root                                                                         | 🧱   |
-| Autostart et daemon `systemd --user`                                                              | 🧱   |
-| Connexion OIDC, carte à puce PKCS#11                                                              | 📐   |
+| Fonctionnalité                                                                                              | État |
+| ----------------------------------------------------------------------------------------------------------- | ---- |
+| Lanceur Linux qui choisit la sandbox Chromium ; profil AppArmor optionnel pour l'admin                      | ✅   |
+| Configuration centrale signée Ed25519 (prompt système, sorties réseau, modèles, paquets, savoirs)           | 🧱   |
+| Passerelle réseau : intranet seulement par défaut, chaque tentative d'accès réseau signalée à l'utilisateur | ✅   |
+| Garde de sortie réseau (liste d'hôtes autorisés, refus des redirections hors liste)                         | 🧱   |
+| Coffre de secrets chiffré, références `{{secret:nom}}`, masquage des sorties                                | 🧱   |
+| Filtre « ceci ressemble à un secret » pour la mémoire                                                       | 🧱   |
+| Refus de démarrer en root (message, arrêt avant toute écriture)                                             | ✅   |
+| Autostart et daemon `systemd --user`                                                                        | 🧱   |
+| Connexion OIDC, carte à puce PKCS#11                                                                        | 📐   |
 
 ## Modules métier
 

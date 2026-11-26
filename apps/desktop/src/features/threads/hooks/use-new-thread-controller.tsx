@@ -1,3 +1,4 @@
+import { isComposerSubmitKey } from "../../conversation/composer-keys";
 import {
   useCallback,
   useEffect,
@@ -395,7 +396,7 @@ export function useNewThreadController(params: UseNewThreadControllerParams) {
         return;
       }
 
-      if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+      if (!isComposerSubmitKey(event)) {
         return;
       }
 

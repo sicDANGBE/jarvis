@@ -669,7 +669,7 @@ test("switches Jarvis tools off app-wide and keeps them off after a restart", as
     if (!(await list.isVisible())) {
       await openButton.click();
     }
-    await expect(list.getByRole("heading", { name: /jarvis tools/ })).toBeVisible();
+    await expect(list.getByRole("heading", { name: /Jarvis tools/ })).toBeVisible();
     return list.getByRole("switch", { name: "Enable Thread orchestration" });
   };
 
@@ -727,7 +727,7 @@ test("lists pi's add-ons as Built into pi and switches them in pi's extensions s
       has: window.getByRole("heading", { name: /Built into pi/ }),
     });
     const jarvisTools = list.locator("section", {
-      has: window.getByRole("heading", { name: /jarvis tools/ }),
+      has: window.getByRole("heading", { name: /Jarvis tools/ }),
     });
     for (const name of ["MCP servers", "Code mode", "Tool search"]) {
       await expect(addons.getByRole("switch", { name: `Enable ${name}` })).toBeChecked();

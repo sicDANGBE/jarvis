@@ -16,6 +16,8 @@ import type {
 import type { ClipboardImageRead } from "./composer-attachments";
 import type { DesktopEditorList } from "./editors";
 import type { SessionRef } from "@jarvis/session-driver/types";
+import type { NetworkActivityEvent, NetworkActivityListener } from "./network";
+import type { DesktopUser } from "./user";
 import type { SaveTaskWorkbenchTemplateInput, TaskWorkbenchTemplate } from "./workbench";
 import type {
   TurnChangesInput,
@@ -111,6 +113,9 @@ export type NewMcpServerInput = { readonly name: string; readonly description?: 
 );
 
 export const desktopIpc = {
+  networkActivity: "jarvis:network-activity",
+  getCurrentUser: "jarvis:get-current-user",
+  getNetworkActivity: "jarvis:get-network-activity",
   extensionViewOpenFile: "jarvis:extension-view-open-file",
   listExtensionViews: "jarvis:list-extension-views",
   openExtensionView: "jarvis:open-extension-view",
@@ -735,6 +740,11 @@ export interface PiDesktopApi {
   getTaskWorkbenchTemplate(target: SessionRef): Promise<TaskWorkbenchTemplate | null>;
   saveTaskWorkbenchTemplate(input: SaveTaskWorkbenchTemplateInput): Promise<void>;
   onStateChanged(listener: PiDesktopStateListener): () => void;
+  /** Recent network access attempts seen by the network gateway (newest last). */
+  getNetworkActivity(): Promise<readonly NetworkActivityEvent[]>;
+  /** The current user; undefined until authentication exists outside development builds. */
+  getCurrentUser(): Promise<DesktopUser | undefined>;
+  onNetworkActivity(listener: NetworkActivityListener): () => void;
   getSelectedTranscript(): Promise<SelectedTranscriptRecord | null>;
   onSelectedTranscriptChanged(listener: PiDesktopSelectedTranscriptListener): () => void;
   resendSelectedTranscript(): void;

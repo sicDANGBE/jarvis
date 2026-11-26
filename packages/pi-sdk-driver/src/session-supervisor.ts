@@ -172,6 +172,11 @@ export interface PiSdkDriverOptions {
   ) => Promise<AgentSessionRuntime>;
   readonly agentDir?: string;
   readonly builtinExtensions?: readonly BuiltinExtension[];
+  /**
+   * Instructions appended to pi's system prompt for every session (after pi's own
+   * APPEND_SYSTEM.md). Read each time a session is created or reloaded.
+   */
+  readonly appendSystemPrompt?: () => readonly string[];
   /** Opens MCP sign-in pages; pi opens the platform browser when omitted. */
   readonly openUrl?: (url: string) => void;
   /** Read each time a session loads or reloads its extensions; defaults to enabled. */
@@ -336,6 +341,7 @@ export class SessionSupervisor {
   private readonly extensionFlagValuesForSession: PiSdkDriverOptions["extensionFlagValuesForSession"];
   private readonly onTurnCaptureBoundary: PiSdkDriverOptions["onTurnCaptureBoundary"];
   private readonly turnCaptureTimeoutMs: number | undefined;
+  private readonly appendSystemPrompt: (() => readonly string[]) | undefined;
   private readonly records = new Map<string, ManagedSessionRecord>();
   private readonly streamedContentLengths = new WeakMap<
     ManagedSessionRecord,
@@ -368,6 +374,7 @@ export class SessionSupervisor {
     this.extensionFlagValuesForSession = options.extensionFlagValuesForSession;
     this.onTurnCaptureBoundary = options.onTurnCaptureBoundary;
     this.turnCaptureTimeoutMs = options.turnCaptureTimeoutMs;
+    this.appendSystemPrompt = options.appendSystemPrompt;
     this.agentDir = options.agentDir;
   }
 
@@ -391,6 +398,14 @@ export class SessionSupervisor {
         ? { extensionFlagValues: new Map(Object.entries(extensionFlagValues)) }
         : {}),
       resourceLoaderOptions: {
+        ...(this.appendSystemPrompt
+          ? {
+              appendSystemPromptOverride: (base: string[]) => [
+                ...base,
+                ...(this.appendSystemPrompt?.() ?? []),
+              ],
+            }
+          : {}),
         extensionFactories: [
           ...this.piAddons,
           ...this.builtinExtensions,

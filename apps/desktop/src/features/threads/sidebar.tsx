@@ -1,3 +1,4 @@
+import { SidebarAccount } from "./sidebar-account";
 import {
   createContext,
   forwardRef,
@@ -509,16 +510,6 @@ export function Sidebar(props: SidebarProps) {
             <ExtensionIcon />
             <span>Extensions</span>
           </button>
-          <button
-            className="sidebar__nav-item"
-            type="button"
-            onClick={() =>
-              onOpenSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)
-            }
-          >
-            <SettingsIcon />
-            <span>Settings</span>
-          </button>
         </div>
       </div>
 
@@ -753,6 +744,11 @@ export function Sidebar(props: SidebarProps) {
           }}
         />
       ) : null}
+      <SidebarAccount
+        onOpenSettings={() =>
+          onOpenSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)
+        }
+      />
     </aside>
   );
 }

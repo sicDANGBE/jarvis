@@ -24,6 +24,15 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { augmentPosixPath } from "../scripts/augment-path.cjs";
+import { DEFAULT_NETWORK_POLICY, NetworkGateway } from "./jarvis/network-gateway";
+import { jarvisSystemInstructions } from "./jarvis/system-prompt";
+import {
+  loadLocalDevConfig,
+  networkPolicyFromConfig,
+  simulatedDevUser,
+} from "./jarvis/local-config";
+import type { DesktopUser } from "../contracts/user";
+import type { NetworkActivityEvent } from "../contracts/network";
 import { DesktopAppStore } from "./application/app-store";
 import { TOOL_IMAGE_SCHEME } from "../contracts/tool-output-images";
 import { WindowOwner } from "./windows/window-owner";
@@ -99,6 +108,32 @@ protocol.registerSchemesAsPrivileged([
   },
   { scheme: TOOL_IMAGE_SCHEME, privileges: { standard: true, secure: true } },
 ]);
+
+// Jarvis never runs as root (issue #11). Tests in root containers opt out explicitly.
+if (process.getuid?.() === 0 && process.env.JARVIS_ALLOW_ROOT_FOR_TESTS !== "1") {
+  const message =
+    "Jarvis ne doit pas être lancé en root ni avec sudo. Relancez-le depuis votre session utilisateur.";
+  console.error(`jarvis: ${message}`);
+  dialog.showErrorBox("Jarvis", message);
+  app.exit(1);
+  process.exit(1);
+}
+
+// Network gateway first: every outgoing connection of the main process and of Chromium goes
+// through it. Intranet only by default; each attempt is shown to the user (AGENTS.md, issue #40).
+const networkGateway = new NetworkGateway(DEFAULT_NETWORK_POLICY, broadcastNetworkActivity);
+networkGateway.installNodeGuard();
+app.on("session-created", (session) => {
+  networkGateway.installChromiumGuard(session);
+  // Chromium downloads spellcheck dictionaries from Google: keep it off.
+  session.setSpellCheckerEnabled(false);
+});
+
+function broadcastNetworkActivity(event: NetworkActivityEvent): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send(desktopIpc.networkActivity, event);
+  }
+}
 
 const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
 const appTestMode = resolveAppTestMode(process.env.PI_APP_TEST_MODE);
@@ -797,7 +832,7 @@ async function runManualUpdateCheck(): Promise<void> {
     window ? dialog.showMessageBox(window, options) : dialog.showMessageBox(options);
 
   try {
-    const result = await checkForUpdate();
+    const result = await checkForUpdate((url) => networkGateway.checkUrl(url));
 
     if (result.status === "update-available") {
       // The manual menu path always confirms with a dialog — a notification may
@@ -1010,6 +1045,34 @@ app.setName("Jarvis");
 const configuredUserDataDir = process.env.PI_APP_USER_DATA_DIR?.trim() || app.getPath("userData");
 app.setPath("userData", configuredUserDataDir);
 
+// Development configuration (issue #3): ignored by stable production builds.
+const localConfig = loadLocalDevConfig({
+  userDataDir: configuredUserDataDir,
+  packaged: app.isPackaged,
+  version: app.getVersion(),
+});
+const agencyConfig = localConfig.status === "loaded" ? localConfig.config : undefined;
+// Development builds simulate an administrator (decision D1); roles will come from authentication.
+const currentUser: DesktopUser | undefined =
+  localConfig.status === "production" ? undefined : simulatedDevUser();
+networkGateway.setPolicy(networkPolicyFromConfig(agencyConfig));
+if (localConfig.status === "invalid") {
+  console.error(
+    `jarvis: configuration locale ignorée (${localConfig.path}) : ${localConfig.error}`,
+  );
+  app
+    .whenReady()
+    .then(() =>
+      dialog.showMessageBox({
+        type: "warning",
+        title: "Jarvis",
+        message: "La configuration locale est invalide et a été ignorée.",
+        detail: `${localConfig.path}\n\n${localConfig.error}`,
+      }),
+    )
+    .catch((error: unknown) => console.error("[main] local config warning failed", error));
+}
+
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 if (!hasSingleInstanceLock) {
   // app.quit() before ready can leave a windowless macOS process alive.
@@ -1100,6 +1163,8 @@ app
           extensionViews.invalidateRuntime(target, generation),
       },
       openUrl: openMcpSignInUrl,
+      // Jarvis's own instructions (French answers by default), issue #10.
+      appendSystemPrompt: () => jarvisSystemInstructions(agencyConfig?.systemPrompt),
       builtinExtensions: [
         {
           name: "jarvis-thread-orchestration",
@@ -1251,7 +1316,12 @@ app
     );
     stopNotifications = notificationManager.start();
     if (!isDev) {
-      stopUpdateChecker = initUpdateChecker();
+      stopUpdateChecker = initUpdateChecker({
+        // Without permission for the update source, no attempt is made (no silent call).
+        shouldRun: () =>
+          networkGateway.decide({ host: "api.github.com", port: 443, addresses: [] }).allowed,
+        guard: (url) => networkGateway.checkUrl(url),
+      });
     }
 
     registerDesktopIpc({
@@ -1281,6 +1351,8 @@ app
         composerDraftFlush: composerDraftFlusher,
       },
       capabilities: {
+        networkActivity: () => networkGateway.recentActivity(),
+        currentUser: () => currentUser,
         ping: () =>
           devReloadMarkersEnabled
             ? `Jarvis desktop ready:${MAIN_DEV_RELOAD_MARKER}`

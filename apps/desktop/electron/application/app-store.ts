@@ -189,6 +189,7 @@ export interface DesktopAppStoreOptions {
   readonly shouldKeepSessionDialogs?: (sessionRef: SessionRef) => boolean;
   readonly driverOptions?: Pick<
     PiSdkDriverConfig,
+    | "appendSystemPrompt"
     | "builtinExtensions"
     | "desktopExtensions"
     | "onTurnCaptureBoundary"

@@ -54,7 +54,21 @@ export function showUpdateNotification(
  * never shows UI. Callers decide how to surface the result (auto path shows a
  * deduped notification, the manual menu path shows a dialog).
  */
-export async function checkForUpdate(): Promise<UpdateCheckResult> {
+/** Network-gateway check run before the request (see electron/jarvis/network-gateway.ts). */
+export type UpdateNetworkGuard = (
+  url: string,
+) => Promise<{ readonly allowed: boolean; readonly reason: string }>;
+
+export async function checkForUpdate(guard?: UpdateNetworkGuard): Promise<UpdateCheckResult> {
+  if (guard) {
+    const decision = await guard(RELEASES_URL);
+    if (!decision.allowed) {
+      return {
+        status: "error",
+        message: `Accès réseau bloqué vers ${new URL(RELEASES_URL).hostname} : ${decision.reason}.`,
+      };
+    }
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   let res: Response;
@@ -120,12 +134,19 @@ export async function checkForUpdate(): Promise<UpdateCheckResult> {
   };
 }
 
-export function initUpdateChecker(): () => void {
+export interface UpdateCheckerOptions {
+  /** False when the network policy would block the update source: no attempt is made at all. */
+  readonly shouldRun: () => boolean;
+  readonly guard: UpdateNetworkGuard;
+}
+
+export function initUpdateChecker(options: UpdateCheckerOptions): () => void {
   // Dedupe notifications per version so a still-unactioned update doesn't
   // re-notify on every 4-hour poll.
   let lastNotifiedVersion: string | undefined;
   const runAutoCheck = async () => {
-    const result = await checkForUpdate();
+    if (!options.shouldRun()) return;
+    const result = await checkForUpdate(options.guard);
     if (result.status === "error") {
       console.warn("Update check failed:", result.message);
       return;

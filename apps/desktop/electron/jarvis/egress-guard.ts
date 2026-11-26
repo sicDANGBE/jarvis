@@ -11,6 +11,8 @@
 
 export type EgressPolicy =
   | { readonly mode: "open" }
+  /** Intranet (adresses privées) plus les hôtes listés ; le contrôle par adresse est fait par la passerelle réseau. */
+  | { readonly mode: "intranet"; readonly hosts: readonly string[] }
   | { readonly mode: "allowlist"; readonly hosts: readonly string[] }
   | { readonly mode: "deny-all" };
 
@@ -47,12 +49,21 @@ function ruleMatches(rule: HostRule, host: string, port: string): boolean {
   return rule.wildcard ? host.endsWith(`.${rule.host}`) : host === rule.host;
 }
 
+/** Returns a test for "does host:port match one of these patterns" (same syntax as the allowlist). */
+export function createHostMatcher(
+  patterns: readonly string[],
+): (host: string, port: string) => boolean {
+  const rules = patterns.map(parseRule);
+  return (host, port) => rules.some((rule) => ruleMatches(rule, host.toLowerCase(), port));
+}
+
 export interface EgressGuard {
   check(url: string): EgressDecision;
 }
 
 export function createEgressGuard(policy: EgressPolicy): EgressGuard {
-  const rules = policy.mode === "allowlist" ? policy.hosts.map(parseRule) : [];
+  const rules =
+    policy.mode === "allowlist" || policy.mode === "intranet" ? policy.hosts.map(parseRule) : [];
 
   return {
     check(url: string): EgressDecision {
@@ -71,7 +82,8 @@ export function createEgressGuard(policy: EgressPolicy): EgressGuard {
       if (parsed.username || parsed.password) {
         return { allowed: false, reason: "Identifiants dans l'URL refusés" };
       }
-      if (policy.mode === "open") {
+      // En mode intranet, la passerelle réseau juge l'adresse réellement jointe.
+      if (policy.mode === "open" || policy.mode === "intranet") {
         return { allowed: true };
       }
       if (policy.mode === "deny-all") {

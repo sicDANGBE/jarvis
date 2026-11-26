@@ -68,8 +68,10 @@ function parseEgress(value: unknown): EgressPolicy {
       return { mode: "deny-all" };
     case "allowlist":
       return { mode: "allowlist", hosts: stringArray(value.hosts, "egress.hosts") };
+    case "intranet":
+      return { mode: "intranet", hosts: stringArray(value.hosts ?? [], "egress.hosts") };
     default:
-      return fail("egress.mode doit valoir open, allowlist ou deny-all");
+      return fail("egress.mode doit valoir intranet, allowlist, deny-all ou open");
   }
 }
 
