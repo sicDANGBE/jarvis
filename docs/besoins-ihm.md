@@ -44,7 +44,8 @@ retour et la sortie (tronquée) sont renvoyés à l'agent comme un message, qui 
 
 **Points d'attention.** Confirmation obligatoire ; traçabilité ([D12](decisions.md#d12--traçabilité-des-actions)) ;
 aucune substitution de secret sans autorisation ([D5](decisions.md#d5--coffre-fort-de-secrets)) ;
-lien avec le mode développeur ([D3](decisions.md#d3--mode-développeur)) à trancher.
+exécution liée au **mode développeur** ([D3](decisions.md#d3--mode-développeur)), décidé le
+2026-11-26.
 
 ## B3 — Repères de navigation et statistiques
 

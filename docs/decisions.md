@@ -267,24 +267,29 @@ l'outil manque.
 
 **Décision.** Trois niveaux d'organisation :
 
-| Niveau                | Rôle                                                                                   | Contient                                     |
-| --------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------- |
-| **Projet**            | Unité de gestion la plus haute. Porte les **secrets**, les **droits** et les réglages. | 0 à n espaces de travail, et des discussions |
-| **Espace de travail** | Gestionnaire de discussions.                                                           | 1 à n discussions                            |
-| **Discussion**        | Une conversation (avec ses conversations annexes, [D11](#d11--conversations-annexes)). | —                                            |
+| Niveau                | Rôle                                                                                   | Contient                       |
+| --------------------- | -------------------------------------------------------------------------------------- | ------------------------------ |
+| **Projet**            | Unité de gestion la plus haute. Porte les **secrets**, les **droits** et les réglages. | Une liste d'espaces de travail |
+| **Espace de travail** | Le **dossier de contexte de l'IA**. Peut être un **dépôt Git**.                        | 1 à n discussions              |
+| **Discussion**        | Une conversation, avec ses conversations annexes ([D11](#d11--conversations-annexes)). | Des conversations annexes      |
 
-- Une discussion appartient à un espace de travail ou directement à un projet.
+- Une discussion appartient **toujours** à un espace de travail.
+- Un projet regroupe des dossiers, **de même niveau ou non** dans l'arborescence du disque.
 - Un espace de travail peut être créé seul, puis **rattaché à un projet** plus tard ; il hérite
   alors des secrets et des droits du projet.
-- La barre latérale trie les discussions **par projet** ou **par date**, au choix de l'utilisateur.
+- La barre latérale trie les discussions **par projet**, **par espace de travail** ou **par date**,
+  au choix de l'utilisateur.
 
-**Conséquences.** Aujourd'hui, l'unité est le dossier (« workspace ») et ses fils : la notion de
-projet n'existe pas. Il faut l'ajouter au catalogue ([`@jarvis/catalogs`](../packages/catalogs)),
-définir l'héritage des secrets ([D5](#d5--coffre-fort-de-secrets)) et des droits, et revoir la barre
-latérale. Un espace de travail n'est plus forcément un dossier du disque.
+**Conséquences.** L'espace de travail correspond à l'actuel « workspace » (un dossier et ses fils),
+déjà pris en charge, y compris pour les dépôts Git (revue, worktrees). Il faut ajouter le projet au
+catalogue ([`@jarvis/catalogs`](../packages/catalogs)), définir l'héritage des secrets
+([D5](#d5--coffre-fort-de-secrets)) et des droits, et revoir la barre latérale.
+
+**Précisions (2026-11-26).** Ces points remplacent la première version de cette décision, qui
+permettait des discussions rattachées directement à un projet.
 
 **À préciser.** Ce que recouvrent les « droits » d'un projet (outils autorisés, secrets, modèles,
-partage entre utilisateurs ?). Le lien entre espace de travail et dossier du disque.
+partage entre utilisateurs ?). Un même dossier peut-il appartenir à plusieurs projets ?
 
 ## D11 — Conversations annexes
 
@@ -294,6 +299,8 @@ partage entre utilisateurs ?). Le lien entre espace de travail et dossier du dis
   passage d'un compte rendu) et ouvre une conversation annexe dessus ;
 - la conversation annexe est traitée **en parallèle**, **sans polluer** le fil ni perturber le
   travail de la conversation principale ;
+- elle ne dépend **pas d'un espace de travail** : son contexte est **limité**, pris dans la
+  discussion (la sélection et ce qui l'entoure), sans accès aux fichiers du dossier ;
 - un **bouton** (ou une demande explicite) **réintègre** le contenu de la conversation annexe dans
   la conversation principale ;
 - **un seul niveau** : une conversation annexe n'a pas elle-même de conversation annexe.
@@ -301,31 +308,50 @@ partage entre utilisateurs ?). Le lien entre espace de travail et dossier du dis
 **Conséquences.** Le code a déjà deux briques proches : les fils enfants créés par l'agent
 (orchestration, `parentSessionId`) et la sélection « ajouter au chat » (`Ctrl+L`,
 [`annotations/`](../apps/desktop/src/features/conversation/annotations)). Une conversation annexe
-reprend le contexte de la conversation principale au moment de sa création, sans y écrire ; la
-réintégration ajoute un message explicite (résumé ou contenu choisi) dans la conversation
-principale.
+est une session Pi sans dossier ni outils de fichiers, amorcée avec la sélection ; la
+réintégration ajoute un message explicite dans la conversation principale.
 
-**À préciser.** Ce que la conversation annexe reçoit du contexte (tout l'historique, ou seulement
-la sélection et un résumé), la forme de la réintégration (résumé généré ou texte brut), l'affichage
-(panneau latéral, onglet).
+**À préciser.** La forme de la réintégration (résumé généré ou texte choisi), l'affichage
+(panneau latéral, onglet), les outils éventuellement autorisés (recherche web ?).
 
 ## D12 — Traçabilité des actions
 
-**Décision.** Toutes les actions du harness sont **tracées** : commandes exécutées, appels
+**Décision.** Les actions du harness peuvent être **tracées** : commandes exécutées, appels
 d'outils, accès aux secrets.
 
+- **Désactivée par défaut.** Elle s'active **par la configuration centrale**
+  ([D1](#d1--source-de-la-configuration)), jamais par l'utilisateur.
 - Durée de conservation **configurable**, **14 jours** par défaut.
 - Possibilité de **journaliser les commandes sans leur contenu** : le contenu reste privé, au moins
   dans un premier temps.
 - La conservation des traces doit **respecter la législation** applicable.
 
-**Conséquences.** Il faut un journal d'audit local, en ajout seul, avec rotation selon la durée
-configurée ; un écran pour le consulter ; une politique fixée par la configuration centrale
-([D1](#d1--source-de-la-configuration)). La remontée vers le serveur reste à décider.
+**Cadre légal relevé (France).** Ces éléments sont une première lecture, à valider avec le
+délégué à la protection des données (DPO) et un juriste :
 
-**À préciser.** Les obligations légales visées (RGPD, durée minimale de conservation des journaux
-de connexion selon le statut de l'agence), la remontée des traces vers le serveur, qui peut les
-consulter.
+- **Information préalable des salariés** : aucune information personnelle sur un salarié ne peut
+  être collectée par un dispositif qui n'a pas été porté préalablement à sa connaissance
+  (Code du travail, art. L1222-4). L'activation de la traçabilité doit donc être annoncée, et
+  Jarvis devrait l'indiquer à l'utilisateur quand elle est active.
+- **Consultation du CSE** : dans une entreprise d'au moins 50 salariés, le comité social et
+  économique est informé et consulté **avant** la mise en place d'un moyen de contrôle de
+  l'activité des salariés (art. L2312-38). Un dispositif mis en place sans cette procédure ne
+  peut pas servir de preuve devant le conseil de prud'hommes.
+- **Durée de conservation** : la CNIL recommande de conserver les journaux de traçabilité des
+  accès et des actions **entre six mois et un an**, au-delà sur justification documentée
+  (délibération n° 2021-122 du 14 octobre 2021). La valeur par défaut de **14 jours est bien plus
+  courte** : elle convient à un usage de diagnostic, mais pas à la traçabilité de sécurité visée
+  par la CNIL. La configuration doit permettre de monter à un an.
+- **RGPD** : minimisation (journaliser sans le contenu par défaut va dans ce sens), finalité
+  déclarée au registre des traitements, sécurité des journaux eux-mêmes (accès restreint,
+  intégrité).
+
+**Conséquences.** Il faut un journal d'audit local, en ajout seul, protégé contre la
+modification, avec rotation selon la durée configurée ; un écran pour le consulter ; une mention
+visible quand la traçabilité est active. La remontée vers le serveur reste à décider.
+
+**À préciser.** La remontée des traces vers le serveur, qui peut les consulter (l'utilisateur,
+un administrateur), la valeur par défaut quand la traçabilité est activée.
 
 ## D13 — Administration et catalogue d'outils
 
@@ -357,6 +383,8 @@ catalogue (paquet Pi, serveur MCP, compétence), la procédure de validation.
 ou choisie par l'utilisateur) et une suite embarquée. Le navigateur intégré s'appuierait sur
 Electron (`WebContentsView`), avec les règles de sorties réseau ([`egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)).
 
-**À préciser.** Le rôle du navigateur (consultation par l'utilisateur, outil piloté par l'agent,
-les deux), l'outil draw.io (éditeur embarqué ou rendu de fichiers), le mode d'intégration de la
+**Précisions (2026-11-26).** Le navigateur est d'abord **un outil de l'agent**. Il sert aussi à
+l'utilisateur pour **automatiser des actions sur des sites qui n'ont pas de serveur MCP**.
+
+**À préciser.** L'outil draw.io (éditeur embarqué ou rendu de fichiers), le mode d'intégration de la
 suite bureautique (ouverture externe, conversion en tâche de fond, édition dans Jarvis).
