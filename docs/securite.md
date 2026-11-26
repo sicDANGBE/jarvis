@@ -215,10 +215,11 @@ poste ; voir [exploitation.md](exploitation.md).
 - Son chemin est un motif dans `/tmp`, accessible en écriture à tous : n'importe quel programme
   placé dans un dossier `/tmp/.mount_<x>/jarvis.bin` obtient lui aussi le droit de créer des user
   namespaces. Le profil affaiblit donc la restriction d'Ubuntu pour ce motif de chemin.
-- Le fichier `jarvis.desktop` généré par electron-builder contient
-  `Exec=AppRun --no-sandbox %U`. Lancée par une intégration de bureau qui utilise ce fichier
-  (AppImageLauncher, appimaged…), l'application démarre **toujours sans sandbox**, même quand
-  elle serait disponible. Le lancement direct de l'AppImage n'est pas concerné.
+- Le fichier `jarvis.desktop` généré par electron-builder contenait `Exec=AppRun --no-sandbox %U` :
+  lancée par une intégration de bureau, l'application démarrait toujours sans sandbox. Corrigé
+  (issue #12) : `executableArgs` pose à la place un marqueur neutre, `--jarvis-desktop-entry`, que
+  le lanceur retire ; le lanceur décide seul de la sandbox. L'entrée de menu créée par
+  `scripts/install.sh` n'a jamais contenu `--no-sandbox`.
 - Sans profil ni user namespaces, l'application tourne sans sandbox Chromium : le renderer reste
   isolé par `contextIsolation`, mais une faille de Chromium n'est plus contenue.
 

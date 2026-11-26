@@ -17,6 +17,12 @@ ${MARKER}
 HERE=$(dirname "$(readlink -f "$0")")
 BIN="$HERE/${binaryName}"
 
+# Marqueur posé par l'entrée de bureau à la place de --no-sandbox (electron-builder.yml) : retiré ici.
+for arg do
+  shift
+  [ "$arg" = "--jarvis-desktop-entry" ] || set -- "$@" "$arg"
+done
+
 sandbox_usable() {
   # 1. user namespaces disponibles -> sandbox namespaces de Chromium
   if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" != "1" ] \\

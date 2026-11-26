@@ -159,6 +159,24 @@ test.describe("configuration signée", () => {
       });
       expect(rejected.source).toBe("cache");
       expect(await readFile(cachePath, "utf8")).not.toContain("open");
+
+      // Issue #5 : un bundle bien signé mais plus ancien que le cache est refusé.
+      const older = (() =>
+        Promise.resolve(
+          Response.json(
+            seal(bundle({ issuedAt: "2026-01-01T00:00:00Z", egress: { mode: "open" } })),
+          ),
+        )) as typeof fetch;
+      const replay = await loadManagedConfig({
+        url,
+        publicKeyPem,
+        cachePath,
+        fetchImpl: older,
+        now: () => NOW,
+      });
+      expect(replay.source).toBe("cache");
+      expect(replay.source === "cache" ? replay.warning : "").toMatch(/retour arrière refusé/);
+      expect(await readFile(cachePath, "utf8")).not.toContain("open");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

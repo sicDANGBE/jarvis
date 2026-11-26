@@ -162,6 +162,19 @@ export type ManagedConfigResult =
     }
   | { readonly source: "none"; readonly error: string };
 
+/** Le bundle en cache s'il est lisible et valide (signature, dates) ; undefined sinon. */
+async function readCachedBundle(
+  cachePath: string,
+  publicKeyPem: string,
+  now: Date,
+): Promise<ManagedConfigBundle | undefined> {
+  try {
+    return openSignedConfig(JSON.parse(await readFile(cachePath, "utf8")), publicKeyPem, now);
+  } catch {
+    return undefined;
+  }
+}
+
 /** Récupère le bundle ; en cas d'échec, retombe sur le dernier bundle valide en cache. */
 export async function loadManagedConfig(
   options: ManagedConfigSourceOptions,
@@ -175,6 +188,14 @@ export async function loadManagedConfig(
     if (!response.ok) fail(`HTTP ${response.status}`);
     const envelope: unknown = await response.json();
     const bundle = openSignedConfig(envelope, options.publicKeyPem, now());
+    // Anti-retour arrière (issue #5) : un bundle valide mais plus ancien que celui en cache est
+    // refusé, sinon un tiers pourrait rejouer une ancienne configuration plus permissive.
+    const cached = await readCachedBundle(options.cachePath, options.publicKeyPem, now());
+    if (cached && Date.parse(bundle.issuedAt) < Date.parse(cached.issuedAt)) {
+      fail(
+        `bundle émis le ${bundle.issuedAt}, plus ancien que celui en cache (${cached.issuedAt}) : retour arrière refusé`,
+      );
+    }
     await writeFileAtomicQueued(options.cachePath, JSON.stringify(envelope), (value) => value);
     return { source: "server", bundle };
   } catch (error) {
