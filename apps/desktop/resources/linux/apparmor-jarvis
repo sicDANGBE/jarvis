@@ -1,0 +1,14 @@
+# Profil AppArmor optionnel pour Jarvis (à déployer UNE fois par l'admin, avec root).
+# Il autorise les user namespaces pour le binaire de l'AppImage, ce qui réactive la
+# sandbox Chromium sur Ubuntu >= 23.10. Sans ce profil, l'app démarre en --no-sandbox.
+#
+#   sudo install -m 644 apparmor-jarvis /etc/apparmor.d/jarvis
+#   sudo apparmor_parser -r /etc/apparmor.d/jarvis
+abi <abi/4.0>,
+include <tunables/global>
+
+profile jarvis /tmp/.mount_*/jarvis.bin flags=(unconfined) {
+  userns,
+
+  include if exists <local/jarvis>
+}
