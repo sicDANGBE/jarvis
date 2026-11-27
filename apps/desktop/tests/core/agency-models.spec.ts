@@ -51,3 +51,35 @@ test("a wildcard keeps every model of the provider", async () => {
     await harness.close();
   }
 });
+
+// Issue #7: the agency's model gateway is declared by the configuration, with its real limits.
+test("the configuration declares the agency's model gateway", async () => {
+  test.setTimeout(60_000);
+  const userDataDir = await makeUserDataDir();
+  const agentDir = join(userDataDir, "agent");
+  await seedAgentDir(agentDir);
+  await writeFile(
+    join(userDataDir, "jarvis-config.json"),
+    JSON.stringify({
+      llm: {
+        baseUrl: "http://127.0.0.1:9/v1",
+        apiKey: "test-key",
+        models: [{ id: "agence-modele", label: "Modèle de l'agence", contextWindow: 64000 }],
+      },
+    }),
+  );
+  const harness = await launchDesktop(userDataDir, {
+    agentDir,
+    initialWorkspaces: [await makeWorkspace("agency-llm-workspace")],
+    testMode: "background",
+  });
+  try {
+    const window = await harness.firstWindow();
+    await window.keyboard.press(desktopShortcut(","));
+    const surface = window.getByTestId("settings-surface");
+    await surface.getByRole("button", { name: "Models", exact: true }).click();
+    await expect(surface).toContainText("Modèle de l'agence");
+  } finally {
+    await harness.close();
+  }
+});

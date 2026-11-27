@@ -28,6 +28,26 @@ export interface ManagedConfigBundle {
   readonly packages: readonly string[];
   readonly knowledge: readonly KnowledgeSource[];
   readonly features: { readonly developerMode: boolean };
+  /** Passerelle de modèles de l'agence (LiteLLM), compatible OpenAI (issue #7). */
+  readonly llm?: ManagedLlm;
+}
+
+export interface ManagedLlmModel {
+  readonly id: string;
+  readonly label?: string;
+  readonly contextWindow?: number;
+  readonly maxOutputTokens?: number;
+  readonly reasoning?: boolean;
+  readonly images?: boolean;
+}
+
+export interface ManagedLlm {
+  /** Identifiant du fournisseur dans Jarvis, `agence` par défaut. */
+  readonly providerId: string;
+  readonly baseUrl: string;
+  /** Clé d'API ou référence `$VARIABLE` (jamais de secret en clair dans le dépôt). */
+  readonly apiKey?: string;
+  readonly models: readonly ManagedLlmModel[];
 }
 
 export interface SignedEnvelope {
@@ -75,6 +95,58 @@ function parseEgress(value: unknown): EgressPolicy {
   }
 }
 
+function positiveInteger(value: unknown, field: string): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    fail(`${field} doit être un entier positif`);
+  }
+  return value;
+}
+
+function parseLlm(value: unknown): ManagedLlm {
+  if (!isRecord(value)) fail("llm doit être un objet");
+  if (typeof value.baseUrl !== "string" || !/^https?:\/\//.test(value.baseUrl)) {
+    fail("llm.baseUrl doit être une URL http(s)");
+  }
+  const providerId = value.providerId ?? "agence";
+  if (typeof providerId !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(providerId)) {
+    fail("llm.providerId : minuscules, chiffres et tirets");
+  }
+  if (value.apiKey !== undefined && typeof value.apiKey !== "string") {
+    fail("llm.apiKey doit être une chaîne");
+  }
+  if (!Array.isArray(value.models) || value.models.length === 0) {
+    fail("llm.models doit lister au moins un modèle");
+  }
+  const models = value.models.map((entry: unknown, index): ManagedLlmModel => {
+    if (!isRecord(entry) || typeof entry.id !== "string" || entry.id.length === 0) {
+      fail(`llm.models[${index}].id manquant`);
+    }
+    const contextWindow = positiveInteger(
+      entry.contextWindow,
+      `llm.models[${index}].contextWindow`,
+    );
+    const maxOutputTokens = positiveInteger(
+      entry.maxOutputTokens,
+      `llm.models[${index}].maxOutputTokens`,
+    );
+    return {
+      id: entry.id,
+      ...(typeof entry.label === "string" ? { label: entry.label } : {}),
+      ...(contextWindow ? { contextWindow } : {}),
+      ...(maxOutputTokens ? { maxOutputTokens } : {}),
+      ...(entry.reasoning === true ? { reasoning: true } : {}),
+      ...(entry.images === true ? { images: true } : {}),
+    };
+  });
+  return {
+    providerId,
+    baseUrl: value.baseUrl,
+    ...(typeof value.apiKey === "string" ? { apiKey: value.apiKey } : {}),
+    models,
+  };
+}
+
 export function parseManagedConfig(raw: unknown): ManagedConfigBundle {
   if (!isRecord(raw)) fail("objet attendu");
   if (raw.version !== MANAGED_CONFIG_VERSION) fail(`version ${String(raw.version)} non supportée`);
@@ -111,7 +183,8 @@ export function parseManagedConfig(raw: unknown): ManagedConfigBundle {
     knowledge,
     features: { developerMode: features.developerMode === true },
   };
-  return models ? { ...bundle, models } : bundle;
+  const llm = raw.llm === undefined ? undefined : parseLlm(raw.llm);
+  return { ...bundle, ...(models ? { models } : {}), ...(llm ? { llm } : {}) };
 }
 
 /** Vérifie la signature Ed25519 puis valide le contenu. Lève une erreur au moindre doute. */

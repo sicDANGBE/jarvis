@@ -28,6 +28,7 @@ import { DEFAULT_NETWORK_POLICY, NetworkGateway } from "./jarvis/network-gateway
 import { jarvisSystemInstructions } from "./jarvis/system-prompt";
 import { setupJarvisAgentDir } from "./jarvis/agent-dir";
 import { applyDefaultModel, createModelAllowList } from "./jarvis/model-policy";
+import { syncManagedLlmProvider } from "./jarvis/llm-provider";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -1072,6 +1073,12 @@ const agencyConfig = localConfig.status === "loaded" ? localConfig.config : unde
 const currentUser: DesktopUser | undefined =
   localConfig.status === "production" ? undefined : simulatedDevUser();
 networkGateway.setPolicy(networkPolicyFromConfig(agencyConfig));
+try {
+  // The agency's model gateway (LiteLLM, issue #7), written before Pi reads models.json.
+  syncManagedLlmProvider(agentDirSetup.agentDir, agencyConfig?.llm);
+} catch (error) {
+  console.error("jarvis: fournisseur de modèles de l'agence non appliqué", error);
+}
 const modelAllowed = createModelAllowList(agencyConfig?.models?.allowed);
 try {
   applyDefaultModel({
