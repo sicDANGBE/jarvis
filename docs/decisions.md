@@ -451,8 +451,10 @@ CSE).
 **Précisions (2026-11-27).** Faute d'envoi des traces depuis plus de 48 heures, **le harness entier
 est coupé**, **sauf s'il fonctionne avec un point d'accès local** (modèle servi sur le poste).
 
-**À préciser.** Le protocole du serveur de traces ; ce que recouvre « local » (le poste seul, ou
-aussi l'intranet).
+« Local » désigne **le poste ou l'intranet** : un modèle servi sur une adresse de la boucle locale
+ou de l'intranet (au sens de la passerelle réseau) maintient le harness en service.
+
+**À préciser.** Le protocole du serveur de traces.
 
 ## D17 — Profils d'agent
 
@@ -502,8 +504,12 @@ tranche** au point d'accès, puis d'afficher le texte reconnu ; même principe p
 synthèse. Pour la phase de test, un **modèle Whisper** est disponible. Aucun moteur n'est donc
 embarqué dans l'AppImage.
 
-**À préciser.** Le format des points d'accès (API compatible OpenAI `/v1/audio/transcriptions`,
-flux WebSocket…), la taille des tranches, le point d'accès de synthèse vocale.
+Le point d'accès de reconnaissance vocale est **compatible OpenAI** (`/v1/audio/transcriptions`).
+Pour la phase de test, c'est celui de l'**API Albert** (Whisper). Ce service étant sur Internet, son
+hôte doit être autorisé dans la configuration de développement (`egress.hosts`), et chaque envoi est
+signalé par la passerelle réseau.
+
+**À préciser.** La taille des tranches, le point d'accès de synthèse vocale et celui de l'OCR.
 
 ## D19 — Identité visuelle et menu utilisateur
 
@@ -543,5 +549,20 @@ réalistes, cumulables :
 les serveurs sont déclarés dans la configuration ; les connexions passent par la passerelle
 réseau.
 
-**À préciser.** Le type de serveur (IMAP/SMTP et CalDAV, Exchange, autre), l'authentification
-(SSO Keycloak, mot de passe).
+**Précisions (2026-11-27).** Le serveur de l'agence est en **IMAP/SMTP** pour la messagerie et
+**CalDAV** pour l'agenda. Jarvis doit prendre en charge **le plus de formats possible** :
+
+| Domaine    | Protocoles et formats visés                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Messagerie | IMAP (IDLE pour la réception en direct), SMTP, POP3 en option ; plus tard JMAP, Exchange (EWS) et Microsoft Graph via des connecteurs             |
+| Messages   | MIME complet : texte, HTML (affiché en bac à sable, images distantes bloquées par défaut), pièces jointes, encodages, S/MIME et OpenPGP à prévoir |
+| Fichiers   | Import et export `.eml` et `.mbox` ; ouverture des `.msg` d'Outlook                                                                               |
+| Agenda     | CalDAV, fichiers iCalendar (`.ics`), invitations iMIP (accepter, refuser) ; abonnements `.ics` en lecture                                         |
+| Contacts   | CardDAV et vCard (`.vcf`)                                                                                                                         |
+| Authentif. | Mot de passe (dans le coffre), OAuth2 / SSO Keycloak (XOAUTH2) quand le serveur le permet                                                         |
+
+L'architecture sépare les **connecteurs** (un par protocole) d'un **modèle commun** (comptes,
+dossiers, messages, événements, contacts) : l'interface et les outils de l'agent ne dépendent
+que du modèle commun.
+
+**À préciser.** L'ordre de prise en charge au-delà d'IMAP/SMTP/CalDAV.
