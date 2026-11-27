@@ -15,16 +15,17 @@ Cette documentation décrit **l'état réel du code**. Chaque fonctionnalité y 
 
 ## Sommaire
 
-| Document                              | Contenu                                                                                          |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [Architecture](architecture.md)       | Processus main, preload et renderer, owners, IPC, persistance, pilote Pi, extensions.            |
-| [Fonctionnalités](fonctionnalites.md) | Ce qui existe aujourd'hui, écran par écran, avec l'état de chaque fonctionnalité.                |
-| [Sécurité](securite.md)               | Configuration signée, sorties réseau, coffre de secrets, sandbox, daemon, OIDC/PKCS#11, limites. |
-| [Exploitation](exploitation.md)       | Installation, profil AppArmor, clé Ed25519 et signature, workflow de release, variables.         |
-| [Spécification](specification.md)     | La cible fonctionnelle de Jarvis (document de référence produit).                                |
-| [Décisions](decisions.md)             | Décisions de direction prises pour le plan de développement.                                     |
-| [Besoins d'interface](besoins-ihm.md) | Besoins d'interface et d'outils exprimés, prêts pour les issues.                                 |
-| [Glossaire](glossaire.md)             | Les termes employés dans le code et la documentation.                                            |
+| Document                                      | Contenu                                                                                          |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Architecture](architecture.md)               | Processus main, preload et renderer, owners, IPC, persistance, pilote Pi, extensions.            |
+| [Fonctionnalités](fonctionnalites.md)         | Ce qui existe aujourd'hui, écran par écran, avec l'état de chaque fonctionnalité.                |
+| [Sécurité](securite.md)                       | Configuration signée, sorties réseau, coffre de secrets, sandbox, daemon, OIDC/PKCS#11, limites. |
+| [Exploitation](exploitation.md)               | Installation, profil AppArmor, clé Ed25519 et signature, workflow de release, variables.         |
+| [Spécification](specification.md)             | La cible fonctionnelle de Jarvis (document de référence produit).                                |
+| [Décisions](decisions.md)                     | Décisions de direction prises pour le plan de développement.                                     |
+| [API d'initialisation](api-initialisation.md) | Proposition de contrat entre Jarvis et le serveur de paramètres.                                 |
+| [Besoins d'interface](besoins-ihm.md)         | Besoins d'interface et d'outils exprimés, prêts pour les issues.                                 |
+| [Glossaire](glossaire.md)                     | Les termes employés dans le code et la documentation.                                            |
 
 ## Documents techniques hérités (en anglais)
 
