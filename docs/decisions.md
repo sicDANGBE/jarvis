@@ -5,22 +5,26 @@ développement et aux issues. Chaque décision indique ce qui a été décidé, 
 dans le code et ce qui reste à préciser. L'état actuel du code est décrit dans
 [fonctionnalites.md](fonctionnalites.md) et [securite.md](securite.md).
 
-| N°                                                          | Sujet                                            | Date       |
-| ----------------------------------------------------------- | ------------------------------------------------ | ---------- |
-| [D1](#d1--source-de-la-configuration)                       | Source de la configuration                       | 2026-11-26 |
-| [D2](#d2--langue)                                           | Langue                                           | 2026-11-26 |
-| [D3](#d3--mode-développeur)                                 | Mode développeur                                 | 2026-11-26 |
-| [D4](#d4--configuration-propre-à-jarvis-et-initialisation)  | Configuration propre à Jarvis et initialisation  | 2026-11-26 |
-| [D5](#d5--coffre-fort-de-secrets)                           | Coffre-fort de secrets                           | 2026-11-26 |
-| [D6](#d6--authentification)                                 | Authentification                                 | 2026-11-26 |
-| [D7](#d7--plateformes-et-mises-à-jour)                      | Plateformes et mises à jour                      | 2026-11-26 |
-| [D8](#d8--exécution-des-tâches-planifiées-hors-application) | Exécution des tâches planifiées hors application | 2026-11-26 |
-| [D9](#d9--autonomie-de-lappimage)                           | Autonomie de l'AppImage                          | 2026-11-26 |
-| [D10](#d10--projets-espaces-de-travail-et-discussions)      | Projets, espaces de travail et discussions       | 2026-11-26 |
-| [D11](#d11--conversations-annexes)                          | Conversations annexes                            | 2026-11-26 |
-| [D12](#d12--traçabilité-des-actions)                        | Traçabilité des actions                          | 2026-11-26 |
-| [D13](#d13--administration-et-catalogue-doutils)            | Administration et catalogue d'outils             | 2026-11-26 |
-| [D14](#d14--outils-bureautiques-et-navigateur)              | Outils bureautiques et navigateur                | 2026-11-26 |
+| N°                                                              | Sujet                                               | Date       |
+| --------------------------------------------------------------- | --------------------------------------------------- | ---------- |
+| [D1](#d1--source-de-la-configuration)                           | Source de la configuration                          | 2026-11-26 |
+| [D2](#d2--langue)                                               | Langue                                              | 2026-11-26 |
+| [D3](#d3--mode-développeur)                                     | Mode développeur                                    | 2026-11-26 |
+| [D4](#d4--configuration-propre-à-jarvis-et-initialisation)      | Configuration propre à Jarvis et initialisation     | 2026-11-26 |
+| [D5](#d5--coffre-fort-de-secrets)                               | Coffre-fort de secrets                              | 2026-11-26 |
+| [D6](#d6--authentification)                                     | Authentification                                    | 2026-11-26 |
+| [D7](#d7--plateformes-et-mises-à-jour)                          | Plateformes et mises à jour                         | 2026-11-26 |
+| [D8](#d8--exécution-des-tâches-planifiées-hors-application)     | Exécution des tâches planifiées hors application    | 2026-11-26 |
+| [D9](#d9--autonomie-de-lappimage)                               | Autonomie de l'AppImage                             | 2026-11-26 |
+| [D10](#d10--projets-espaces-de-travail-et-discussions)          | Projets, espaces de travail et discussions          | 2026-11-26 |
+| [D11](#d11--conversations-annexes)                              | Conversations annexes                               | 2026-11-26 |
+| [D12](#d12--traçabilité-des-actions)                            | Traçabilité des actions                             | 2026-11-26 |
+| [D13](#d13--administration-et-catalogue-doutils)                | Administration et catalogue d'outils                | 2026-11-26 |
+| [D14](#d14--outils-bureautiques-et-navigateur)                  | Outils bureautiques et navigateur                   | 2026-11-26 |
+| [D15](#d15--réglages-administrés-et-paramètres-de-lapplication) | Réglages administrés et paramètres de l'application | 2026-11-27 |
+| [D16](#d16--accès-internet-et-traces-des-requêtes)              | Accès Internet et traces des requêtes               | 2026-11-27 |
+| [D17](#d17--profils-dagent)                                     | Profils d'agent                                     | 2026-11-27 |
+| [D18](#d18--voix-et-reconnaissance-de-texte)                    | Voix et reconnaissance de texte                     | 2026-11-27 |
 
 ## D1 — Source de la configuration
 
@@ -393,3 +397,97 @@ l'utilisateur pour **automatiser des actions sur des sites qui n'ont pas de serv
 
 **À préciser.** L'outil draw.io (éditeur embarqué ou rendu de fichiers), le mode d'intégration de la
 suite bureautique (ouverture externe, conversion en tâche de fond, édition dans Jarvis).
+
+## D15 — Réglages administrés et paramètres de l'application
+
+**Décision.**
+
+- Chaque réglage de Jarvis peut être **administré depuis le serveur de paramètres**, pour tous les
+  utilisateurs ou une partie d'entre eux. Pour un réglage, le serveur peut :
+  - l'**activer** ou fixer sa valeur ;
+  - en faire la **valeur par défaut** ;
+  - **autoriser ou interdire** sa modification par l'utilisateur.
+- Ces réglages sont visibles dans **Application › Paramètres**. Cet onglet permet de **contrôler
+  complètement le fonctionnement du harness** (accès réseau, traces, outils, compétences, serveurs
+  MCP, profils d'agent, voix…) et montre les **outils disponibles** : navigateur, draw.io, trousseau
+  de clés, suite bureautique, etc.
+
+**Conséquences.** Chaque réglage devient un triplet _valeur / valeur par défaut / verrouillé_,
+résolu dans l'ordre : réglage verrouillé par le serveur, choix de l'utilisateur, défaut du serveur,
+défaut de Jarvis. L'interface affiche un réglage verrouillé comme tel (non modifiable, avec sa
+provenance). Le schéma de la configuration ([D1](#d1--source-de-la-configuration),
+[D4](#d4--configuration-propre-à-jarvis-et-initialisation)) porte ces triplets ; la configuration
+locale de développement aussi.
+
+**À préciser.** Le ciblage « une partie des utilisateurs » (groupes Keycloak, rôles), la liste des
+réglages de la première version.
+
+## D16 — Accès Internet et traces des requêtes
+
+**Décision.**
+
+- L'**accès à Internet est un réglage** ([D15](#d15--réglages-administrés-et-paramètres-de-lapplication)),
+  administrable par le serveur pour tout ou partie des utilisateurs. L'intranet reste joignable dans
+  tous les cas.
+- Pendant la phase de développement, Internet peut être activé (développement depuis le domicile).
+- **Quand Internet est activé, toutes les requêtes vers Internet sont tracées** sur le poste, avec
+  une **rétention de 48 heures**, et peuvent être **envoyées à un serveur de traces**.
+- Si l'envoi vers le serveur de traces est activé et que les traces n'ont **pas pu être envoyées
+  depuis plus de 48 heures**, le harness **se met en défaut** : il cesse de joindre Internet et
+  l'indique à l'utilisateur.
+
+**Conséquences.** La passerelle réseau ([#40](https://github.com/sicDANGBE/jarvis/issues/40)) enregistre
+déjà chaque tentative en mémoire ; il faut un journal sur disque (en ajout seul, rotation à 48 h),
+l'envoi vers le serveur de traces (par la passerelle elle-même, donc lui aussi tracé et soumis à la
+politique) et l'état « en défaut ». Le contenu des requêtes n'est pas tracé, seulement leurs
+métadonnées (date, hôte, adresse, port, décision, origine), conformément à
+[D12](#d12--traçabilité-des-actions). Le cadre légal de D12 s'applique (information des salariés,
+CSE).
+
+**À préciser.** L'effet exact du défaut (Internet seul coupé, ou harness entier arrêté), le
+protocole du serveur de traces.
+
+## D17 — Profils d'agent
+
+**Décision.** En plus des serveurs MCP et des **compétences** (nom français des _skills_), on crée
+des **profils d'agent** : « Expert Excel », « Expert développement », etc. Selon le profil, le harness
+charge plus ou moins de capacités.
+
+**Avis.** L'idée est bonne : c'est le mécanisme des agents spécialisés (sous-agents, GPTs
+personnalisés). Trois précautions :
+
+- un profil est un **paquet de configuration**, pas un programme : prompt système, modèle et niveau
+  de raisonnement, outils, compétences et serveurs MCP autorisés, mode développeur. Le mode
+  développeur ([D3](#d3--mode-développeur)) devient naturellement le profil « Expert
+  développement » ;
+- il faut un **profil généraliste par défaut** et ne pas obliger l'utilisateur à choisir avant chaque
+  question ; Jarvis peut **proposer** un profil adapté à la demande, l'utilisateur garde la main ;
+- les profils sont **définis et validés par l'agence** (serveur de paramètres,
+  [D13](#d13--administration-et-catalogue-doutils)) ; un utilisateur ne peut qu'**en restreindre** un,
+  jamais lui donner plus de droits que ceux de son projet.
+
+**Conséquences.** Le profil se choisit par discussion (comme le modèle aujourd'hui) et se mémorise
+par projet ou espace de travail ; il fixe la liste d'outils transmise à Pi pour la session.
+
+**À préciser.** Les profils de la première version, la possibilité pour un utilisateur d'en créer.
+
+## D18 — Voix et reconnaissance de texte
+
+**Décision.** En plus du texte, Jarvis accepte :
+
+- les **images**, avec reconnaissance de texte (**OCR**) ;
+- la **voix** de l'utilisateur (**reconnaissance vocale**, _speech to text_) ;
+- et peut **répondre à voix haute** (**synthèse vocale**, _text to speech_) si l'utilisateur le
+  souhaite.
+
+**Conséquences.** Pour respecter « aucune donnée ne sort du poste » et l'intranet par défaut, ces
+traitements doivent tourner **sur le poste** (moteurs locaux embarqués) ou sur un **service de
+l'intranet** déclaré dans la configuration, jamais sur un service Internet par défaut. Les images
+sont déjà acceptées en pièce jointe et transmises aux modèles qui les lisent ; l'OCR sert aux modèles
+sans vision et aux documents numérisés. Chaque fonction est un réglage
+([D15](#d15--réglages-administrés-et-paramètres-de-lapplication)). Les moteurs locaux alourdissent
+l'AppImage ([D9](#d9--autonomie-de-lappimage)) : modèles téléchargés à la demande depuis l'intranet,
+ou embarqués.
+
+**À préciser.** Moteurs retenus (par exemple Tesseract pour l'OCR, Whisper pour la reconnaissance
+vocale, Piper pour la synthèse), langues, embarqués ou téléchargés.
