@@ -27,6 +27,7 @@ import { augmentPosixPath } from "../scripts/augment-path.cjs";
 import { DEFAULT_NETWORK_POLICY, NetworkGateway } from "./jarvis/network-gateway";
 import { jarvisSystemInstructions } from "./jarvis/system-prompt";
 import { setupJarvisAgentDir } from "./jarvis/agent-dir";
+import { applyDefaultModel, createModelAllowList } from "./jarvis/model-policy";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -1071,6 +1072,16 @@ const agencyConfig = localConfig.status === "loaded" ? localConfig.config : unde
 const currentUser: DesktopUser | undefined =
   localConfig.status === "production" ? undefined : simulatedDevUser();
 networkGateway.setPolicy(networkPolicyFromConfig(agencyConfig));
+const modelAllowed = createModelAllowList(agencyConfig?.models?.allowed);
+try {
+  applyDefaultModel({
+    agentDir: agentDirSetup.agentDir,
+    defaultModel: agencyConfig?.models?.default,
+    isAllowed: modelAllowed,
+  });
+} catch (error) {
+  console.error("jarvis: modèle par défaut non appliqué", error);
+}
 if (localConfig.status === "invalid") {
   console.error(
     `jarvis: configuration locale ignorée (${localConfig.path}) : ${localConfig.error}`,
@@ -1180,6 +1191,8 @@ app
       openUrl: openMcpSignInUrl,
       // Jarvis's own instructions (French answers by default), issue #10.
       appendSystemPrompt: () => jarvisSystemInstructions(agencyConfig?.systemPrompt),
+      // Models the agency allows (issue #4); every model when the configuration lists none.
+      isModelAllowed: modelAllowed,
       builtinExtensions: [
         {
           name: "jarvis-thread-orchestration",

@@ -114,7 +114,14 @@ export interface RuntimeSupervisorOptions {
   readonly builtinExtensions?: readonly BuiltinExtension[];
   readonly isBuiltinExtensionEnabled?: BuiltinExtensionEnabled;
   readonly customProviderStore?: CustomProviderStore;
+  /**
+   * Host policy on models (e.g. the agency's allowed list). A model it refuses is left out of
+   * runtime snapshots and cannot be made the default. Read on every call.
+   */
+  readonly isModelAllowed?: ModelAllowed;
 }
+
+export type ModelAllowed = (provider: string, modelId: string) => boolean;
 
 type ResourceScope = "user" | "project";
 type ToggleableResourceKind = "extension" | "skill";
@@ -130,6 +137,7 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
   private readonly authPath: string;
   private readonly builtinExtensions: readonly BuiltinExtension[];
   private readonly isBuiltinExtensionEnabled: BuiltinExtensionEnabled;
+  private readonly isModelAllowed: ModelAllowed;
   private readonly customProviderStore: CustomProviderStore;
   private readonly contexts = new Map<string, RuntimeContext>();
 
@@ -141,6 +149,7 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
     this.builtinExtensions = options.builtinExtensions ?? [];
     this.isBuiltinExtensionEnabled = options.isBuiltinExtensionEnabled ?? (() => true);
     this.customProviderStore = deps.customProviderStore;
+    this.isModelAllowed = options.isModelAllowed ?? (() => true);
   }
 
   async getRuntimeSnapshot(workspace: WorkspaceRef): Promise<RuntimeSnapshot> {
@@ -255,6 +264,11 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
       readonly modelId: string;
     },
   ): Promise<RuntimeSnapshot> {
+    if (!this.isModelAllowed(selection.provider, selection.modelId)) {
+      throw new Error(
+        `Model ${selection.provider}:${selection.modelId} is not allowed by the configuration.`,
+      );
+    }
     const context = await this.ensureContext(workspace);
     context.settingsManager.setDefaultModelAndProvider(selection.provider, selection.modelId);
     await context.settingsManager.flush();
@@ -825,6 +839,7 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
 
     return runtime
       .getModels()
+      .filter((model) => this.isModelAllowed(model.provider, model.id))
       .map<RuntimeModelRecord>((model) => {
         const provider = providers.get(model.provider);
         return {

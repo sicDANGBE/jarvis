@@ -177,6 +177,8 @@ export interface PiSdkDriverOptions {
    * APPEND_SYSTEM.md). Read each time a session is created or reloaded.
    */
   readonly appendSystemPrompt?: () => readonly string[];
+  /** Host policy on models; a refused model cannot be selected for a session. */
+  readonly isModelAllowed?: (provider: string, modelId: string) => boolean;
   /** Opens MCP sign-in pages; pi opens the platform browser when omitted. */
   readonly openUrl?: (url: string) => void;
   /** Read each time a session loads or reloads its extensions; defaults to enabled. */
@@ -342,6 +344,7 @@ export class SessionSupervisor {
   private readonly onTurnCaptureBoundary: PiSdkDriverOptions["onTurnCaptureBoundary"];
   private readonly turnCaptureTimeoutMs: number | undefined;
   private readonly appendSystemPrompt: (() => readonly string[]) | undefined;
+  private readonly isModelAllowed: ((provider: string, modelId: string) => boolean) | undefined;
   private readonly records = new Map<string, ManagedSessionRecord>();
   private readonly streamedContentLengths = new WeakMap<
     ManagedSessionRecord,
@@ -375,6 +378,7 @@ export class SessionSupervisor {
     this.onTurnCaptureBoundary = options.onTurnCaptureBoundary;
     this.turnCaptureTimeoutMs = options.turnCaptureTimeoutMs;
     this.appendSystemPrompt = options.appendSystemPrompt;
+    this.isModelAllowed = options.isModelAllowed;
     this.agentDir = options.agentDir;
   }
 
@@ -1498,6 +1502,11 @@ export class SessionSupervisor {
   }
 
   async setSessionModel(sessionRef: SessionRef, selection: SessionModelSelection): Promise<void> {
+    if (this.isModelAllowed && !this.isModelAllowed(selection.provider, selection.modelId)) {
+      throw new Error(
+        `Model ${selection.provider}:${selection.modelId} is not allowed by the configuration.`,
+      );
+    }
     const record = await this.ensureRecord(sessionRef);
     const session = record.session;
     if (!session) {

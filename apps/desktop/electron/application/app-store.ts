@@ -190,6 +190,7 @@ export interface DesktopAppStoreOptions {
   readonly driverOptions?: Pick<
     PiSdkDriverConfig,
     | "appendSystemPrompt"
+    | "isModelAllowed"
     | "builtinExtensions"
     | "desktopExtensions"
     | "onTurnCaptureBoundary"
