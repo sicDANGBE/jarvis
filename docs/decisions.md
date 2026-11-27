@@ -25,6 +25,8 @@ dans le code et ce qui reste à préciser. L'état actuel du code est décrit da
 | [D16](#d16--accès-internet-et-traces-des-requêtes)              | Accès Internet et traces des requêtes               | 2026-11-27 |
 | [D17](#d17--profils-dagent)                                     | Profils d'agent                                     | 2026-11-27 |
 | [D18](#d18--voix-et-reconnaissance-de-texte)                    | Voix et reconnaissance de texte                     | 2026-11-27 |
+| [D19](#d19--identité-visuelle-et-menu-utilisateur)              | Identité visuelle et menu utilisateur               | 2026-11-27 |
+| [D20](#d20--messagerie-et-agenda)                               | Messagerie et agenda                                | 2026-11-27 |
 
 ## D1 — Source de la configuration
 
@@ -419,8 +421,10 @@ provenance). Le schéma de la configuration ([D1](#d1--source-de-la-configuratio
 [D4](#d4--configuration-propre-à-jarvis-et-initialisation)) porte ces triplets ; la configuration
 locale de développement aussi.
 
-**À préciser.** Le ciblage « une partie des utilisateurs » (groupes Keycloak, rôles), la liste des
-réglages de la première version.
+**Précisions (2026-11-27).** Le ciblage se fait par **rôles fournis par Keycloak** et, au besoin,
+**par utilisateur nommément**.
+
+**À préciser.** La liste des réglages de la première version.
 
 ## D16 — Accès Internet et traces des requêtes
 
@@ -444,8 +448,11 @@ métadonnées (date, hôte, adresse, port, décision, origine), conformément à
 [D12](#d12--traçabilité-des-actions). Le cadre légal de D12 s'applique (information des salariés,
 CSE).
 
-**À préciser.** L'effet exact du défaut (Internet seul coupé, ou harness entier arrêté), le
-protocole du serveur de traces.
+**Précisions (2026-11-27).** Faute d'envoi des traces depuis plus de 48 heures, **le harness entier
+est coupé**, **sauf s'il fonctionne avec un point d'accès local** (modèle servi sur le poste).
+
+**À préciser.** Le protocole du serveur de traces ; ce que recouvre « local » (le poste seul, ou
+aussi l'intranet).
 
 ## D17 — Profils d'agent
 
@@ -489,5 +496,52 @@ sans vision et aux documents numérisés. Chaque fonction est un réglage
 l'AppImage ([D9](#d9--autonomie-de-lappimage)) : modèles téléchargés à la demande depuis l'intranet,
 ou embarqués.
 
-**À préciser.** Moteurs retenus (par exemple Tesseract pour l'OCR, Whisper pour la reconnaissance
-vocale, Piper pour la synthèse), langues, embarqués ou téléchargés.
+**Précisions (2026-11-27).** L'OCR et la voix passent par des **points d'accès configurés**
+(serveurs de l'agence). Le rôle du harness est de **capter la voix et de l'envoyer tranche par
+tranche** au point d'accès, puis d'afficher le texte reconnu ; même principe pour l'OCR et la
+synthèse. Pour la phase de test, un **modèle Whisper** est disponible. Aucun moteur n'est donc
+embarqué dans l'AppImage.
+
+**À préciser.** Le format des points d'accès (API compatible OpenAI `/v1/audio/transcriptions`,
+flux WebSocket…), la taille des tranches, le point d'accès de synthèse vocale.
+
+## D19 — Identité visuelle et menu utilisateur
+
+**Décision.**
+
+- Visuel **plus rond, plus chaleureux, moins austère**, sur le modèle de Gemini : angles arrondis,
+  surfaces douces, champ de saisie en pilule, couleurs moins grises.
+- Le **mode transparent** est à retravailler : sous Linux, la fenêtre devient entièrement
+  transparente et illisible.
+- Le **menu en bas à gauche** (bloc utilisateur) s'inspire de Claude : statistiques d'utilisation,
+  aide, « En savoir plus », **journal des modifications** (rappel des nouveautés entre deux
+  versions), tutoriel si nécessaire, paramètres.
+
+**Conséquences.** La refonte passe par les jetons de style (`src/styles/tokens.css`) plutôt que
+par des retouches écran par écran. Le journal des modifications suppose des notes de version
+rédigées à chaque release (workflow de publication) et un affichage des nouveautés au premier
+lancement d'une nouvelle version.
+
+## D20 — Messagerie et agenda
+
+**Décision.** Un serveur de messagerie est connecté à Jarvis. On veut faciliter l'accès de
+l'utilisateur à ses **mails** et à son **agenda**, avec une interface **proche de Thunderbird**, voire
+Thunderbird incrusté.
+
+**Avis.** Incruster Thunderbird lui-même dans Jarvis n'est pas réaliste : c'est une application
+séparée, qu'Electron ne peut pas afficher dans sa fenêtre (surtout sous Wayland). Deux voies
+réalistes, cumulables :
+
+- une **vue Messagerie et Agenda dans Jarvis**, à l'ergonomie proche de Thunderbird (dossiers,
+  liste, lecture, rédaction ; vue agenda), branchée sur le serveur de l'agence ;
+- des **outils pour l'agent** (chercher, lire, préparer un brouillon, proposer un rendez-vous), l'envoi
+  restant soumis à la validation de l'utilisateur, comme prévu dans la spécification ;
+- et, si Thunderbird est installé sur le poste, un bouton pour **ouvrir le message dans
+  Thunderbird**.
+
+**Conséquences.** Les mots de passe ou jetons vont dans le coffre ([D5](#d5--coffre-fort-de-secrets)) ;
+les serveurs sont déclarés dans la configuration ; les connexions passent par la passerelle
+réseau.
+
+**À préciser.** Le type de serveur (IMAP/SMTP et CalDAV, Exchange, autre), l'authentification
+(SSO Keycloak, mot de passe).
