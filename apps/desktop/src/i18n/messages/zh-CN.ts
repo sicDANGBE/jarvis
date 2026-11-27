@@ -17,12 +17,8 @@ export const zhCN: Partial<Messages> = {
   "providers.requiredId": "请填写提供方标识。",
   "providers.idFormat": "请使用小写字母、数字和连字符，最多 64 个字符。",
   "providers.idInUse": "提供方标识“{trimmed}”已被使用。",
-  "mcp.globalConfig": "pi 的全局 mcp.json",
-  "mcp.remove": "确定移除 MCP 服务器“{name}”吗？终端中的 pi 也将停止使用它。",
   "mcp.removeHidden": "{question}其隐藏配置（环境变量、请求头、登录配置）也将一并删除。",
   "ui.customEndpoints": "自定义端点",
-  "ui.addOpenAICompatibleEndpointsOllamaVLLMOrYourOwnServerStoredIn":
-    "添加兼容 OpenAI 的端点（Ollama、vLLM 或自建服务），保存在 ~/.pi/agent/models.json。",
   "ui.noCustomEndpointsYet": "暂无自定义端点。",
   "ui.addEndpoint": "添加端点",
   "ui.registerALocalOrCustomOpenAICompatibleServer": "注册本地或自定义的 OpenAI 兼容服务。",
@@ -53,10 +49,6 @@ export const zhCN: Partial<Messages> = {
   "ui.addModelIDManually": "手动添加模型标识",
   "ui.add": "添加",
   "ui.servers": "服务器",
-  "ui.sharedWithPiInTheTerminalValuePlusThisProjectSPi":
-    "与终端中的 pi 共享配置：{globalConfigPath}，以及本项目的 .pi/mcp.json。",
-  "ui.noMCPServersYetServersComeFromValueWhichPiInThe":
-    "暂无 MCP 服务器。服务器配置来自 {globalConfigPath}，终端中的 pi 也使用该文件。在会话中输入 /mcp 可查看连接状态和登录。",
   "ui.codeMode": "代码模式",
   "ui.alwaysOn": "始终开启",
   "ui.letsTheModelRunScriptsThatCallToolsTurningItOnAlso":

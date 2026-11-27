@@ -167,9 +167,7 @@ test("adds, switches and removes an MCP server from Settings, editing mcp.json i
       return message;
     });
     await row("fixture").getByRole("button", { name: "Remove" }).click();
-    expect(await accepted).toBe(
-      'Remove MCP server "fixture"? pi in the terminal stops using it too.',
-    );
+    expect(await accepted).toBe('Remove MCP server "fixture"?');
     await expect(row("fixture")).toHaveCount(0);
     expect(await readJson(mcpPath)).toEqual({
       autoEnableCodemode: true,

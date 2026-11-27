@@ -18,7 +18,7 @@ const technicalCopy = new Set([
   "-y @modelcontextprotocol/server-filesystem .",
   "--api-key",
   "/v1",
-  "~/.pi/agent/models.json",
+  "~/.config/Jarvis/agent/models.json",
   "/bin/zsh",
   "OpenAI Chat Completions",
   "OpenAI Responses",

@@ -35,8 +35,8 @@ export const fr: Partial<Messages> = {
   "providers.requiredId": "L'identifiant du fournisseur est obligatoire.",
   "providers.idFormat": "Minuscules, chiffres et tirets uniquement (64 caractères au plus).",
   "providers.idInUse": "L'identifiant de fournisseur « {trimmed} » est déjà utilisé.",
-  "mcp.globalConfig": "le mcp.json global de pi",
-  "mcp.remove": "Supprimer le serveur MCP « {name} » ? pi en terminal cessera aussi de l'utiliser.",
+  "mcp.globalConfig": "le mcp.json global de Jarvis",
+  "mcp.remove": "Supprimer le serveur MCP « {name} » ?",
   "mcp.removeHidden":
     "{question} Ses réglages cachés (variables d'environnement, en-têtes, configuration de connexion) seront aussi supprimés.",
   "ui.customEndpoints": "Points d'accès personnalisés",
@@ -46,7 +46,7 @@ export const fr: Partial<Messages> = {
   "ui.reasoningSupportedLabel": "Raisonnement pris en charge : {id}",
   "ui.supportsReasoning": "{id} : prend en charge le raisonnement",
   "ui.addOpenAICompatibleEndpointsOllamaVLLMOrYourOwnServerStoredIn":
-    "Ajoutez des points d'accès compatibles OpenAI (Ollama, vLLM ou votre propre serveur). Enregistrés dans ~/.pi/agent/models.json.",
+    "Ajoutez des points d'accès compatibles OpenAI (Ollama, vLLM ou votre propre serveur). Enregistrés dans le models.json du dossier de l'agent de Jarvis.",
   "ui.noCustomEndpointsYet": "Aucun point d'accès personnalisé pour l'instant.",
   "ui.addEndpoint": "Ajouter un point d'accès",
   "ui.registerALocalOrCustomOpenAICompatibleServer":
@@ -79,9 +79,9 @@ export const fr: Partial<Messages> = {
   "ui.add": "Ajouter",
   "ui.servers": "Serveurs",
   "ui.sharedWithPiInTheTerminalValuePlusThisProjectSPi":
-    "Partagés avec pi en terminal : {globalConfigPath}, ainsi que le .pi/mcp.json de ce projet.",
+    "Serveurs globaux : {globalConfigPath}, ainsi que le .pi/mcp.json de ce projet.",
   "ui.noMCPServersYetServersComeFromValueWhichPiInThe":
-    "Aucun serveur MCP pour l'instant. Les serveurs viennent de {globalConfigPath}, utilisé aussi par pi en terminal. L'état de connexion et la connexion s'affichent dans les discussions : tapez /mcp.",
+    "Aucun serveur MCP pour l'instant. Les serveurs viennent de {globalConfigPath}. L'état de connexion et la connexion s'affichent dans les discussions : tapez /mcp.",
   "ui.codeMode": "Mode code",
   "ui.alwaysOn": "Toujours actif",
   "ui.letsTheModelRunScriptsThatCallToolsTurningItOnAlso":

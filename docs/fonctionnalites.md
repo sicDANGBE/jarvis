@@ -39,7 +39,7 @@ Code : [`src/features/threads`](../apps/desktop/src/features/threads).
 | Actions sur un fil : renommer, épingler, archiver ou restaurer, marquer comme lu, ajouter une tâche planifiée, copier l'identifiant de session  | ✅   |
 | Ouvrir le dossier du fil dans un éditeur détecté ou dans le gestionnaire de fichiers                                                            | ✅   |
 | Changement rapide de fil (sélecteur et raccourcis)                                                                                              | ✅   |
-| Découverte des sessions Pi existantes du dossier (créées par Pi en terminal)                                                                    | ✅   |
+| Découverte des sessions Pi existantes du dossier (celles du dossier de l'agent de Jarvis depuis l'issue #2)                                     | ✅   |
 | Worktrees Git : créer un fil dans un worktree isolé (« Worktree », « Fork environment »)                                                        | ✅   |
 | Espaces de travail distants via SSH (alias de `~/.ssh/config`, dossier Linux absolu)                                                            | ✅   |
 | Personnalisation de la barre latérale (regroupement)                                                                                            | ✅   |

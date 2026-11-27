@@ -64,7 +64,7 @@ flowchart LR
   end
 
   Remote["Hôte distant SSH<br/>~/.local/share/jarvis-host"]
-  PiData[("~/.pi/agent<br/>settings, auth, models, mcp<br/>sessions JSONL")]
+  PiData[("~/.config/Jarvis/agent<br/>settings, auth, models, mcp<br/>sessions JSONL")]
 
   UI --> API --> IPC --> WO --> Store --> Owners
   Owners --> Persist
@@ -153,9 +153,13 @@ arrêté.
 
 ### Données de l'agent Pi
 
-Jarvis ne copie pas l'historique de Pi : il lit et écrit les fichiers de Pi à leur place habituelle,
-partagés avec Pi lancé en terminal. Le dossier de l'agent est `~/.pi/agent`, ou celui que désigne
-`PI_CODING_AGENT_DIR`.
+Jarvis a **son propre dossier d'agent** (décision D4, issue #2) : au démarrage, `main.ts` fixe
+`PI_CODING_AGENT_DIR` à `~/.config/Jarvis/agent` (sauf si la variable est déjà posée), avant de
+créer le moindre runtime ; Pi et ses processus enfants l'utilisent
+([`agent-dir.ts`](../apps/desktop/electron/jarvis/agent-dir.ts)). Au premier lancement,
+`settings.json`, `auth.json`, `models.json` et `mcp.json` de `~/.pi/agent` sont **copiés** une fois
+(rien n'est déplacé ni modifié côté Pi en terminal). Les sessions ne sont pas copiées : les
+discussions déjà connues gardent le chemin complet de leur fichier et restent accessibles.
 
 | Fichier         | Contenu                                                          |
 | --------------- | ---------------------------------------------------------------- |

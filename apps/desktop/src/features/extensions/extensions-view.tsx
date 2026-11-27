@@ -124,7 +124,7 @@ function ExtensionDetail({
           title="Source"
           description={
             isPiAddonExtension(selected)
-              ? "Ships with pi; this switch also applies to pi in the terminal"
+              ? "Ships with Pi"
               : selected.sourceInfo.origin === "package"
                 ? "Installed as a package"
                 : "Loaded from a file"

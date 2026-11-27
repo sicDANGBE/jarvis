@@ -26,6 +26,7 @@ import { pathToFileURL } from "node:url";
 import { augmentPosixPath } from "../scripts/augment-path.cjs";
 import { DEFAULT_NETWORK_POLICY, NetworkGateway } from "./jarvis/network-gateway";
 import { jarvisSystemInstructions } from "./jarvis/system-prompt";
+import { setupJarvisAgentDir } from "./jarvis/agent-dir";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -1050,6 +1051,14 @@ app.setName("Jarvis");
 
 const configuredUserDataDir = process.env.PI_APP_USER_DATA_DIR?.trim() || app.getPath("userData");
 app.setPath("userData", configuredUserDataDir);
+
+// Jarvis's own agent folder (issue #2): Pi and its child processes read PI_CODING_AGENT_DIR.
+const agentDirSetup = setupJarvisAgentDir({ userDataDir: configuredUserDataDir });
+if (agentDirSetup.imported.length > 0) {
+  console.log(
+    `jarvis: configuration de Pi importée dans ${agentDirSetup.agentDir} : ${agentDirSetup.imported.join(", ")}`,
+  );
+}
 
 // Development configuration (issue #3): ignored by stable production builds.
 const localConfig = loadLocalDevConfig({

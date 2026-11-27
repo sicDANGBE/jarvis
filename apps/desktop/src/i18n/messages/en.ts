@@ -34,8 +34,8 @@ export const en = {
   "providers.requiredId": "Provider ID is required.",
   "providers.idFormat": "Use lowercase letters, digits, and dashes (max 64 chars).",
   "providers.idInUse": 'Provider ID "{trimmed}" is already in use.',
-  "mcp.globalConfig": "pi's global mcp.json",
-  "mcp.remove": 'Remove MCP server "{name}"? pi in the terminal stops using it too.',
+  "mcp.globalConfig": "Jarvis's global mcp.json",
+  "mcp.remove": 'Remove MCP server "{name}"?',
   "mcp.removeHidden":
     "{question} Its hidden settings (environment variables, headers, sign-in config) are deleted too.",
   "ui.customEndpoints": "Custom endpoints",
@@ -45,7 +45,7 @@ export const en = {
   "ui.reasoningSupportedLabel": "Reasoning supported: {id}",
   "ui.supportsReasoning": "{id}: supports reasoning",
   "ui.addOpenAICompatibleEndpointsOllamaVLLMOrYourOwnServerStoredIn":
-    "Add OpenAI-compatible endpoints (Ollama, vLLM, or your own server). Stored in ~/.pi/agent/models.json.",
+    "Add OpenAI-compatible endpoints (Ollama, vLLM, or your own server). Stored in models.json in Jarvis's agent folder.",
   "ui.noCustomEndpointsYet": "No custom endpoints yet.",
   "ui.addEndpoint": "Add endpoint",
   "ui.registerALocalOrCustomOpenAICompatibleServer":
@@ -78,9 +78,9 @@ export const en = {
   "ui.add": "Add",
   "ui.servers": "Servers",
   "ui.sharedWithPiInTheTerminalValuePlusThisProjectSPi":
-    "Shared with pi in the terminal: {globalConfigPath}, plus this project's .pi/mcp.json.",
+    "Global servers: {globalConfigPath}, plus this project's .pi/mcp.json.",
   "ui.noMCPServersYetServersComeFromValueWhichPiInThe":
-    "No MCP servers yet. Servers come from {globalConfigPath}, which pi in the terminal uses too. Connection status and sign-in show in threads: type /mcp.",
+    "No MCP servers yet. Servers come from {globalConfigPath}. Connection status and sign-in show in threads: type /mcp.",
   "ui.codeMode": "Code mode",
   "ui.alwaysOn": "Always on",
   "ui.letsTheModelRunScriptsThatCallToolsTurningItOnAlso":

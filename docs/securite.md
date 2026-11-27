@@ -179,7 +179,7 @@ encore utilisé ; ses motifs d'hôtes sont réutilisés par la passerelle.
 
 - Rien n'appelle le coffre : aucun écran, aucun outil, aucun emplacement de fichier défini.
 - Les identifiants des fournisseurs de modèles et des serveurs MCP restent aujourd'hui gérés par
-  Pi (`~/.pi/agent/auth.json`, `mcp.json`), hors du coffre et non chiffrés par Jarvis.
+  Pi (`~/.config/Jarvis/agent/auth.json`, `mcp.json`), hors du coffre et non chiffrés par Jarvis.
 - Le masquage ne reconnaît que trois formes exactes. Il ne détecte pas une valeur encodée
   autrement (hexadécimal, base64 décalé, JSON échappé), tronquée ou découpée entre deux morceaux
   d'un flux.

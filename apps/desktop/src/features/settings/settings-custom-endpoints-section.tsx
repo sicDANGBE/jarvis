@@ -314,7 +314,7 @@ function CustomEndpointDialog({
           </div>
           <p className="extension-dialog__body">
             {t("ui.configureAnOpenAICompatibleServerTheEndpointAndAPIKeyAreStored")}
-            <code> ~/.pi/agent/models.json</code>.
+            <code> ~/.config/Jarvis/agent/models.json</code>.
           </p>
           <label className="settings-field">
             <span>{t("ui.providerID")}</span>
