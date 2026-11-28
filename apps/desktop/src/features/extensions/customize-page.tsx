@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import type {
   RuntimeExtensionRecord,
@@ -32,9 +33,6 @@ interface CustomizePageProps {
   readonly onOpenExtensionFolder: (path: string) => void;
 }
 
-const NEW_SKILL_PROMPT =
-  "Create a new skill for this workspace and explain which files you will add.";
-
 /** Codex's Plugins page: tabs with counts over one searchable, grouped list per tab. */
 export function CustomizePage({
   tab,
@@ -51,6 +49,7 @@ export function CustomizePage({
   onToggleExtension,
   onOpenExtensionFolder,
 }: CustomizePageProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | undefined>();
   // The palette and the workspace picker change what is listed without going through the tabs,
@@ -102,18 +101,19 @@ export function CustomizePage({
       <div className="conversation settings-view">
         <header className="view-header">
           <div>
-            <h1 className="view-header__title">Skills and extensions</h1>
+            <h1 className="view-header__title">{t("settings.nav.customize")}</h1>
             <p className="view-header__body">
-              Reusable workflows and runtime add-ons pi loads for{" "}
-              {workspace?.name ?? "this workspace"}.
+              {t("customize.intro", {
+                workspace: workspace?.name ?? t("settings.thisWorkspace"),
+              })}
             </p>
           </div>
           <div className="view-header__actions">
             {workspacePicker}
             <button
-              aria-label="Refresh"
+              aria-label={t("common.refresh")}
               className="icon-button resource-refresh"
-              title="Refresh"
+              title={t("common.refresh")}
               type="button"
               onClick={onRefresh}
             >
@@ -123,9 +123,9 @@ export function CustomizePage({
               <button
                 className="button button--primary"
                 type="button"
-                onClick={() => onTryCommand(NEW_SKILL_PROMPT)}
+                onClick={() => onTryCommand(t("customize.newSkillPrompt"))}
               >
-                New skill
+                {t("customize.newSkill")}
               </button>
             ) : null}
           </div>
@@ -133,21 +133,21 @@ export function CustomizePage({
 
         <div className="resource-toolbar">
           <div
-            aria-label="Skills and extensions"
+            aria-label={t("settings.nav.customize")}
             className="resource-tabs"
             role="tablist"
             onKeyDown={handleTabKeyDown}
           >
             <ResourceTab
               count={skills.length}
-              label="Skills"
+              label={t("nav.skills")}
               selected={tab === "skills"}
               tab="skills"
               onSelect={() => onSelectTab("skills")}
             />
             <ResourceTab
               count={extensions.length}
-              label="Extensions"
+              label={t("nav.extensions")}
               selected={tab === "extensions"}
               tab="extensions"
               onSelect={() => onSelectTab("extensions")}
@@ -178,7 +178,7 @@ export function CustomizePage({
         >
           {!workspace ? (
             <div className="settings-group resource-empty">
-              <div className="resource-empty__title">Open a folder first</div>
+              <div className="resource-empty__title">{t("customize.openFolderFirst")}</div>
               <p className="resource-empty__body">
                 Skills and extensions are discovered per workspace, plus your user folders.
               </p>

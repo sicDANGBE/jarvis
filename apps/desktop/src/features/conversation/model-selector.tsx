@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RuntimeSnapshot } from "@jarvis/session-driver/runtime-types";
 import {
@@ -24,6 +25,17 @@ interface ModelSelectorProps {
 
 type OpenDropdown = "none" | "model" | "thinking";
 
+/** Catalog keys of pi's thinking levels; an unknown level shows as is. */
+const THINKING_LABEL_KEYS = {
+  off: "composer.thinking.off",
+  minimal: "composer.thinking.minimal",
+  low: "composer.thinking.low",
+  medium: "composer.thinking.medium",
+  high: "composer.thinking.high",
+  xhigh: "composer.thinking.xhigh",
+  max: "composer.thinking.max",
+} as const;
+
 export function ModelSelector({
   runtime,
   provider,
@@ -38,6 +50,7 @@ export function ModelSelector({
   onSetModel,
   onSetThinking,
 }: ModelSelectorProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState<OpenDropdown>("none");
   const [modelFilter, setModelFilter] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -177,7 +190,11 @@ export function ModelSelector({
             disabled={disabled}
             onClick={() => setOpen(open === "thinking" ? "none" : "thinking")}
           >
-            {thinkingLevel ?? "Thinking"}
+            {thinkingLevel
+              ? Object.hasOwn(THINKING_LABEL_KEYS, thinkingLevel)
+                ? t(THINKING_LABEL_KEYS[thinkingLevel as keyof typeof THINKING_LABEL_KEYS])
+                : thinkingLevel
+              : t("composer.thinking")}
           </button>
           {open === "thinking" ? (
             <div

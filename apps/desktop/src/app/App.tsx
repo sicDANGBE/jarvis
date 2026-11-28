@@ -45,7 +45,7 @@ import { CommandPaletteSurface } from "../features/command-palette/command-palet
 import { deriveModelOnboardingState } from "../features/settings/model-onboarding";
 import type { SettingsSection } from "../features/settings/settings-view";
 import { SecondarySurfaces } from "./secondary-surfaces";
-import { NewThreadView } from "../features/threads/new-thread-view";
+import { NewThreadLabel, NewThreadView } from "../features/threads/new-thread-view";
 import {
   buildThreadSidebarModel,
   sessionThreadKey,
@@ -1323,7 +1323,7 @@ export default function App() {
                       )
                     }
                   >
-                    New thread
+                    <NewThreadLabel />
                   </button>
                 </div>
               </div>

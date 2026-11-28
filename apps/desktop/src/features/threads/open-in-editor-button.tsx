@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { CheckIcon, ChevronDownIcon } from "../../ui/icons";
 import { EditorIcon, hasEditorIcon } from "../../ui/editor-icons";
 import type { OpenInEditorState } from "./hooks/use-open-in-editor";
@@ -8,12 +9,13 @@ interface OpenInEditorButtonProps {
 }
 
 export function OpenInEditorButton({ state, onOpenFolder }: OpenInEditorButtonProps) {
-  const displayLabel = state.loading ? "…" : (state.targetLabel ?? "Folder");
+  const { t } = useTranslation();
+  const displayLabel = state.loading ? "…" : (state.targetLabel ?? t("editor.folder"));
   const label = state.loading
-    ? "Looking for editors…"
+    ? t("editor.looking")
     : state.targetLabel
-      ? `Open in ${state.targetLabel}`
-      : "Open this project in the file manager";
+      ? t("editor.openIn", { target: state.targetLabel })
+      : t("editor.openFolder");
 
   return (
     <div className="open-in-editor" ref={state.wrapRef}>

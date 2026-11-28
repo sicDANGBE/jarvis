@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { useMemo, useRef } from "react";
 import type {
   SessionTranscriptCustomMessage,
@@ -502,9 +503,12 @@ function statusLabel(status: "running" | "success" | "error") {
 }
 
 function TimelineTurnMarkerItem({ item }: { readonly item: TimelineTurnMarker }) {
+  const { t } = useTranslation();
   return (
     <div className="timeline-turn-marker" data-testid="timeline-turn-marker">
-      <span className="timeline-turn-marker__label">{`Worked for ${formatWorkedDuration(item.durationMs)}`}</span>
+      <span className="timeline-turn-marker__label">
+        {t("running.workedFor", { duration: formatWorkedDuration(item.durationMs) })}
+      </span>
     </div>
   );
 }

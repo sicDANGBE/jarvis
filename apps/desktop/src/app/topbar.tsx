@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import type { AppView, WorkspaceRecord, WorktreeRecord } from "../../contracts/desktop-state";
 import { getSidePanelToggleShortcutLabel, type PiDesktopApi } from "../../contracts/ipc";
@@ -31,6 +32,7 @@ export function Topbar({
   editorControl,
   onTogglePanel,
 }: TopbarProps) {
+  const { t } = useTranslation();
   const handleDoubleClick = (event: ReactMouseEvent<HTMLElement>) => {
     const target = event.target;
     if (!(target instanceof HTMLElement) || target.closest(".topbar__actions")) return;
@@ -67,7 +69,7 @@ export function Topbar({
         ) : activeView === "new-thread" && rootWorkspace ? (
           <>
             <span className="topbar__separator">/</span>
-            <span className="topbar__session">New thread</span>
+            <span className="topbar__session">{t("nav.newThread")}</span>
           </>
         ) : null}
       </div>

@@ -81,6 +81,12 @@ interface NewThreadViewProps {
   readonly onSubmit: () => void;
 }
 
+/** "New thread" in the current language, for callers outside a translated component. */
+export function NewThreadLabel() {
+  const { t } = useTranslation();
+  return <>{t("nav.newThread")}</>;
+}
+
 export function NewThreadView({
   workspaces,
   selectedWorkspaceId,
@@ -148,8 +154,8 @@ export function NewThreadView({
     return (
       <section className="canvas canvas--empty">
         <div className="empty-panel">
-          <div className="session-header__eyebrow">New thread</div>
-          <h1>Open a folder to begin</h1>
+          <div className="session-header__eyebrow">{t("nav.newThread")}</div>
+          <h1>{t("newThread.openFolder")}</h1>
           <p>
             Select a repository from the sidebar first, then start a local or worktree-backed
             thread.
@@ -166,8 +172,8 @@ export function NewThreadView({
           <div className="new-thread__logo" data-testid="new-thread-logo">
             <JarvisLogoMark />
           </div>
-          <div className="new-thread__eyebrow">New thread</div>
-          <h1 className="new-thread__title">Let&apos;s build</h1>
+          <div className="new-thread__eyebrow">{t("nav.newThread")}</div>
+          <h1 className="new-thread__title">{t("newThread.title")}</h1>
           <label className="new-thread__workspace-picker">
             <span className="sr-only">Workspace</span>
             <select
@@ -224,7 +230,7 @@ export function NewThreadView({
               selectedMentionIndex={selectedMentionIndex}
               onSelectMention={onSelectMention}
               onEnableMentionExtension={onEnableMentionExtension}
-              textareaLabel="New thread prompt"
+              textareaLabel={t("newThread.promptLabel")}
               textareaTestId="new-thread-composer"
               textareaClassName="new-thread__textarea"
               textareaPlaceholder={t("composer.newThreadPlaceholder")}
@@ -290,6 +296,7 @@ function NewThreadComposerFooter({
   onAddAttachments,
   onSubmit,
 }: NewThreadComposerFooterProps) {
+  const { t } = useTranslation();
   const remote = runtime ? parseSshWorkspace(runtime.workspace.workspaceId) : undefined;
   return (
     <>
@@ -350,7 +357,7 @@ function NewThreadComposerFooter({
               }}
             />
             <button
-              aria-label="Attach files"
+              aria-label={t("composer.attachFiles")}
               className="icon-button composer__attach"
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -358,7 +365,7 @@ function NewThreadComposerFooter({
               <PlusIcon />
             </button>
             <button
-              aria-label="Start thread"
+              aria-label={t("newThread.start")}
               className="button button--primary button--cta-icon"
               type="button"
               disabled={!hasContent || modelOnboarding.requiresModelSelection}

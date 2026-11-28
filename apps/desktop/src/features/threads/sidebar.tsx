@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n";
 import { SidebarAccount } from "./sidebar-account";
 import {
   createContext,
@@ -143,6 +144,7 @@ const ThreadListContext = createContext<
 >(undefined);
 
 export function Sidebar(props: SidebarProps) {
+  const { t } = useTranslation();
   const {
     activeView,
     selectedWorkspace,
@@ -469,7 +471,7 @@ export function Sidebar(props: SidebarProps) {
           onClick={() => onNewThread()}
         >
           <PlusIcon />
-          <span>New thread</span>
+          <span>{t("nav.newThread")}</span>
         </button>
 
         <div className="sidebar__nav">
@@ -479,7 +481,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("threads")}
           >
             <FolderIcon />
-            <span>Threads</span>
+            <span>{t("nav.threads")}</span>
           </button>
           <button
             className={`sidebar__nav-item ${activeView === "scheduled" ? "sidebar__nav-item--active" : ""}`}
@@ -488,7 +490,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("scheduled")}
           >
             <ClockIcon />
-            <span>Scheduled</span>
+            <span>{t("nav.scheduled")}</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -498,7 +500,7 @@ export function Sidebar(props: SidebarProps) {
             }
           >
             <SkillIcon />
-            <span>Skills</span>
+            <span>{t("nav.skills")}</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -508,14 +510,14 @@ export function Sidebar(props: SidebarProps) {
             }
           >
             <ExtensionIcon />
-            <span>Extensions</span>
+            <span>{t("nav.extensions")}</span>
           </button>
         </div>
       </div>
 
       <div className="sidebar__section">
         <div className="section__head">
-          <span>Threads</span>
+          <span>{t("nav.threads")}</span>
           <div className="section__tools">
             <ThreadGroupingControl
               grouping={threadGrouping}
@@ -528,7 +530,7 @@ export function Sidebar(props: SidebarProps) {
               }}
             />
             <button
-              aria-label="Open folder"
+              aria-label={t("sidebar.openFolder")}
               className="icon-button"
               type="button"
               onClick={() => {
@@ -555,8 +557,8 @@ export function Sidebar(props: SidebarProps) {
 
         {visibleWorkspaces.length === 0 ? (
           <div className="empty-state" data-testid="empty-state">
-            <h2>No folders yet</h2>
-            <p>Open a project folder to start building a workspace and session list.</p>
+            <h2>{t("sidebar.noFolders.title")}</h2>
+            <p>{t("sidebar.noFolders.body")}</p>
             <button
               className="button button--primary"
               type="button"
@@ -1072,14 +1074,15 @@ function RecencyThreadSectionView({
     pinned: boolean,
   ) => void;
 }) {
+  const { t } = useTranslation();
   const history = threadHistoryPreview(section.threads, historyExpanded);
   return (
     <section
       className="recency-thread-group"
-      aria-label={section.label}
+      aria-label={t(`recency.${section.bucket}`)}
       data-recency-bucket={section.bucket}
     >
-      <div className="recency-thread-group__head">{section.label}</div>
+      <div className="recency-thread-group__head">{t(`recency.${section.bucket}`)}</div>
       <div className="session-list session-list--history">
         {history.visible.map((thread) => (
           <HistoryThreadRow
@@ -1167,7 +1170,8 @@ function HistoryToggle({
   readonly label: string;
   readonly onToggle: () => void;
 }) {
-  const text = expanded ? "Show less" : "Show more";
+  const { t } = useTranslation();
+  const text = expanded ? t("sidebar.showLess") : t("sidebar.showMore");
   return (
     <button
       aria-expanded={expanded}
@@ -1188,6 +1192,7 @@ function ThreadGroupingControl({
   readonly grouping: ThreadGrouping;
   readonly onChange: (grouping: ThreadGrouping) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
@@ -1339,14 +1344,14 @@ function ThreadGroupingControl({
                   onMouseEnter={keepSubmenu}
                   onMouseLeave={closeSubmenuSoon}
                 >
-                  <span>Grouping</span>
+                  <span>{t("sidebar.grouping")}</span>
                   <ChevronRightIcon />
                 </button>
               </div>
               {submenuOpen ? (
                 <div
                   ref={submenuRef}
-                  aria-label="Grouping"
+                  aria-label={t("sidebar.grouping")}
                   className="workspace-menu thread-grouping__submenu"
                   role="menu"
                   style={submenuStyle}
@@ -1355,8 +1360,8 @@ function ThreadGroupingControl({
                 >
                   {(
                     [
-                      ["time", "Time"],
-                      ["workspace", "Workspace"],
+                      ["time", t("sidebar.grouping.time")],
+                      ["workspace", t("sidebar.grouping.workspace")],
                     ] as const
                   ).map(([value, label]) => (
                     <button
@@ -1412,6 +1417,7 @@ function ArchivedThreadsSection({
     pinned: boolean,
   ) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="archived-thread-group">
       <button
@@ -1426,7 +1432,7 @@ function ArchivedThreadsSection({
         >
           <ChevronDownIcon />
         </span>
-        <span>Archived</span>
+        <span>{t("sidebar.archived")}</span>
         <span className="archived-thread-group__count">{archivedThreads.length}</span>
       </button>
       {open ? (
@@ -1494,11 +1500,12 @@ function PinnedThreadsSection({
     pinned: boolean,
   ) => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <section className="pinned-thread-group" aria-label="Pinned threads">
+    <section className="pinned-thread-group" aria-label={t("sidebar.pinnedThreads")}>
       <div className="pinned-thread-group__head">
         <PinIcon filled />
-        <span>Pinned</span>
+        <span>{t("sidebar.pinned")}</span>
       </div>
       <SortableContext items={[...sortableIds]} strategy={verticalListSortingStrategy}>
         <div className="session-list session-list--pinned">
