@@ -144,6 +144,23 @@ sockets) et [`network-gateway.spec.ts`](../apps/desktop/tests/core/network-gatew
 - La décision repose sur la résolution DNS faite par la passerelle ; un serveur DNS de l'intranet
   compromis peut toujours orienter une connexion vers une autre adresse privée.
 
+### Accès Internet et traces — ✅
+
+- L'accès à Internet est le réglage administré `network.internet` (issues #41, #42) : désactivé, seuls
+  le poste et l'intranet sont joignables ; activé, la passerelle s'ouvre (sauf `deny-all`), chaque
+  accès restant signalé.
+- **Internet actif ⇒ chaque tentative vers une adresse Internet est tracée** dans
+  `~/.config/Jarvis/traces/internet.jsonl` : date, origine, hôte, adresse, port, décision, raison ;
+  **jamais le contenu**. Rétention **48 heures** (purge au démarrage et à chaque envoi).
+- Si `traces.internet.upload` est actif, les traces sont envoyées toutes les 15 minutes au serveur
+  de traces (`traces.url` de la configuration), par la passerelle. **Sans envoi réussi depuis plus de
+  48 heures, le harness se met en défaut** : Internet est coupé (poste et intranet seulement, donc
+  seul un point d'accès local reste utilisable) et l'utilisateur est averti, jusqu'au prochain envoi
+  réussi.
+- Limites : les traces couvrent les connexions vues par la passerelle (process main et Chromium),
+  pas celles des processus enfants ; le fichier est protégé par les droits Unix (`0600`), pas
+  chiffré ni signé.
+
 ### `fetch` gardé des outils — 🧱
 
 `createEgressGuard` applique une politique par URL :

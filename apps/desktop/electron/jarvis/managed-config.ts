@@ -33,6 +33,8 @@ export interface ManagedConfigBundle {
   readonly llm?: ManagedLlm;
   /** Réglages administrés : valeur, défaut, verrouillage (issue #41). */
   readonly settings?: AgencySettings;
+  /** Serveur de traces des requêtes Internet (issue #42). */
+  readonly traces?: { readonly url: string };
 }
 
 export interface ManagedLlmModel {
@@ -193,8 +195,15 @@ export function parseManagedConfig(raw: unknown): ManagedConfigBundle {
   } catch (error) {
     fail((error as Error).message);
   }
+  let traces: ManagedConfigBundle["traces"];
+  if (raw.traces !== undefined) {
+    if (!isRecord(raw.traces) || typeof raw.traces.url !== "string") fail("traces.url manquant");
+    if (!/^https?:\/\//.test(raw.traces.url)) fail("traces.url doit être une URL http(s)");
+    traces = { url: raw.traces.url };
+  }
   return {
     ...bundle,
+    ...(traces ? { traces } : {}),
     ...(models ? { models } : {}),
     ...(llm ? { llm } : {}),
     ...(settings ? { settings } : {}),

@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { launchDesktop, makeUserDataDir, makeWorkspace } from "../helpers/electron-app";
@@ -58,6 +58,11 @@ test("the Internet setting opens the gateway and an agency lock is enforced", as
       (globalThis as unknown as SettingsApi).piApp?.getNetworkActivity(),
     );
     expect(activity?.some((event) => event.host === "8.8.8.8" && event.allowed)).toBe(true);
+
+    // Issue #42: with Internet on, the attempt is traced on this computer, without content.
+    await expect
+      .poll(() => readFile(join(userDataDir, "traces", "internet.jsonl"), "utf8").catch(() => ""))
+      .toContain('"host":"8.8.8.8"');
   } finally {
     await harness.close();
   }

@@ -30,6 +30,7 @@ import { setupJarvisAgentDir } from "./jarvis/agent-dir";
 import { applyDefaultModel, createModelAllowList } from "./jarvis/model-policy";
 import { syncManagedLlmProvider } from "./jarvis/llm-provider";
 import { ManagedSettings } from "./jarvis/managed-settings";
+import { InternetTraceLog } from "./jarvis/internet-traces";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -124,6 +125,9 @@ if (process.getuid?.() === 0 && process.env.JARVIS_ALLOW_ROOT_FOR_TESTS !== "1")
   process.exit(1);
 }
 
+// Set once the settings and the trace log exist (issue #42).
+let recordInternetTrace: ((event: NetworkActivityEvent) => void) | undefined;
+
 // Network gateway first: every outgoing connection of the main process and of Chromium goes
 // through it. Intranet only by default; each attempt is shown to the user (AGENTS.md, issue #40).
 const networkGateway = new NetworkGateway(DEFAULT_NETWORK_POLICY, broadcastNetworkActivity);
@@ -135,6 +139,7 @@ app.on("session-created", (session) => {
 });
 
 function broadcastNetworkActivity(event: NetworkActivityEvent): void {
+  recordInternetTrace?.(event);
   for (const window of BrowserWindow.getAllWindows()) {
     if (!window.isDestroyed()) window.webContents.send(desktopIpc.networkActivity, event);
   }
@@ -1078,14 +1083,74 @@ const managedSettings = new ManagedSettings(
   agencyConfig?.settings ?? {},
   path.join(configuredUserDataDir, "jarvis-settings.json"),
   (key) => {
-    if (key === "network.internet") applyNetworkPolicy();
+    if (key === "network.internet" || key === "traces.internet.upload") applyNetworkPolicy();
   },
 );
-function applyNetworkPolicy(): void {
-  networkGateway.setPolicy(
-    networkPolicyFromConfig(agencyConfig, managedSettings.getBoolean("network.internet")),
+// Internet traces (issue #42): kept 48 h on this computer; when their upload is required and has
+// not succeeded for 48 h, the harness is in fault and Internet is cut (local and intranet only).
+const internetTraces = new InternetTraceLog(
+  path.join(configuredUserDataDir, "traces", "internet.jsonl"),
+  path.join(configuredUserDataDir, "traces", "upload-state.json"),
+);
+function traceUploadRequired(): boolean {
+  return (
+    managedSettings.getBoolean("network.internet") &&
+    managedSettings.getBoolean("traces.internet.upload")
   );
 }
+let inTraceFault = false;
+function applyNetworkPolicy(): void {
+  const fault = traceUploadRequired() && internetTraces.isInFault();
+  if (fault && !inTraceFault) {
+    broadcastNetworkActivity({
+      id: Date.now(),
+      at: new Date().toISOString(),
+      source: "node",
+      host: agencyConfig?.traces?.url ? new URL(agencyConfig.traces.url).hostname : "traces",
+      allowed: false,
+      reason: "Traces non envoyées depuis plus de 48 h : Internet coupé jusqu'au prochain envoi",
+    });
+  }
+  inTraceFault = fault;
+  networkGateway.setPolicy(
+    networkPolicyFromConfig(agencyConfig, managedSettings.getBoolean("network.internet") && !fault),
+  );
+}
+recordInternetTrace = (event) => {
+  if (!managedSettings.getBoolean("network.internet")) return;
+  try {
+    internetTraces.record(event);
+  } catch (error) {
+    console.error("jarvis: trace Internet non enregistrée", error);
+  }
+};
+try {
+  internetTraces.prune();
+} catch (error) {
+  console.error("jarvis: purge des traces Internet impossible", error);
+}
+async function uploadInternetTraces(): Promise<void> {
+  if (traceUploadRequired()) {
+    const url = agencyConfig?.traces?.url;
+    if (url) {
+      try {
+        await internetTraces.upload(async (traces) => {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ traces }),
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        });
+      } catch (error) {
+        console.error("jarvis: envoi des traces Internet impossible", error);
+      }
+    }
+  }
+  applyNetworkPolicy();
+}
+setInterval(() => void uploadInternetTraces().catch(console.error), 15 * 60 * 1000).unref();
+setTimeout(() => void uploadInternetTraces().catch(console.error), 30 * 1000).unref();
 applyNetworkPolicy();
 try {
   // The agency's model gateway (LiteLLM, issue #7), written before Pi reads models.json.
