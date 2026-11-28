@@ -7,6 +7,23 @@
 import type { PluralCategory, PluralVariantKey } from "../plural";
 
 export const en = {
+  "settings.nav.vault": "Vault",
+  "settings.section.vault.description":
+    "Passwords and keys Jarvis can use for you without ever seeing them.",
+  "vault.unavailable": "The vault is closed",
+  "vault.secrets": "Secrets",
+  "vault.empty": "No secrets yet.",
+  "vault.search": "Search secrets",
+  "vault.noMatch": "No secret matches “{query}”.",
+  "vault.updated": "Updated {date}",
+  "vault.delete": "Delete {name}",
+  "vault.confirmDelete": "Delete the secret “{name}”?",
+  "vault.add": "Add a secret",
+  "vault.addDescription":
+    "Jarvis refers to it as {{secret:name}}; the value stays encrypted on this computer.",
+  "vault.name": "Name",
+  "vault.value": "Value",
+  "vault.save": "Save",
   "editor.folder": "Folder",
   "editor.looking": "Looking for editors…",
   "editor.openIn": "Open in {target}",

@@ -1,3 +1,4 @@
+import type { VaultState } from "../../contracts/vault";
 import type { ManagedSettingView } from "../../contracts/managed-settings";
 import type { DesktopUser } from "../../contracts/user";
 import type { NetworkActivityEvent } from "../../contracts/network";
@@ -191,6 +192,11 @@ export interface DesktopIpcCapabilities {
   readonly ping: () => string;
   readonly networkActivity: () => readonly NetworkActivityEvent[];
   readonly currentUser: () => DesktopUser | undefined;
+  readonly vault: {
+    state(): Promise<VaultState>;
+    set(name: string, value: string): Promise<VaultState>;
+    delete(name: string): Promise<VaultState>;
+  };
   readonly managedSettings: {
     list(): readonly ManagedSettingView[];
     set(key: string, value: unknown): unknown;
@@ -303,6 +309,22 @@ export function registerDesktopIpc({
     }
   };
 
+  ipcMain.handle(desktopIpc.getVault, (event) => {
+    windows.windowForSender(event.sender);
+    return capabilities.vault.state();
+  });
+  ipcMain.handle(desktopIpc.setVaultSecret, (event, name: unknown, value: unknown) => {
+    windows.windowForSender(event.sender);
+    if (typeof name !== "string" || typeof value !== "string") {
+      throw new Error("Invalid vault secret");
+    }
+    return capabilities.vault.set(name, value);
+  });
+  ipcMain.handle(desktopIpc.deleteVaultSecret, (event, name: unknown) => {
+    windows.windowForSender(event.sender);
+    if (typeof name !== "string") throw new Error("Invalid vault secret name");
+    return capabilities.vault.delete(name);
+  });
   ipcMain.handle(desktopIpc.getManagedSettings, (event) => {
     windows.windowForSender(event.sender);
     return capabilities.managedSettings.list();

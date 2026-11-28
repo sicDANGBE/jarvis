@@ -5,6 +5,23 @@ import type { Messages } from "./en";
  * copie anglaise ; `pnpm i18n:check fr` liste ce qui reste à traduire.
  */
 export const fr: Partial<Messages> = {
+  "settings.nav.vault": "Coffre-fort",
+  "settings.section.vault.description":
+    "Mots de passe et clés que Jarvis peut utiliser pour vous sans jamais les voir.",
+  "vault.unavailable": "Le coffre-fort est fermé",
+  "vault.secrets": "Secrets",
+  "vault.empty": "Aucun secret pour l'instant.",
+  "vault.search": "Rechercher un secret",
+  "vault.noMatch": "Aucun secret ne correspond à « {query} ».",
+  "vault.updated": "Modifié le {date}",
+  "vault.delete": "Supprimer {name}",
+  "vault.confirmDelete": "Supprimer le secret « {name} » ?",
+  "vault.add": "Ajouter un secret",
+  "vault.addDescription":
+    "Jarvis le désigne par {{secret:nom}} ; la valeur reste chiffrée sur ce poste.",
+  "vault.name": "Nom",
+  "vault.value": "Valeur",
+  "vault.save": "Enregistrer",
   "editor.folder": "Dossier",
   "editor.looking": "Recherche des éditeurs…",
   "editor.openIn": "Ouvrir dans {target}",

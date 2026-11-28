@@ -8,6 +8,7 @@ import {
   nativeTheme,
   net,
   protocol,
+  safeStorage,
   shell,
   type MenuItemConstructorOptions,
   type MessageBoxOptions,
@@ -31,6 +32,7 @@ import { applyDefaultModel, createModelAllowList } from "./jarvis/model-policy";
 import { syncManagedLlmProvider } from "./jarvis/llm-provider";
 import { ManagedSettings } from "./jarvis/managed-settings";
 import { InternetTraceLog } from "./jarvis/internet-traces";
+import { VaultService } from "./jarvis/vault-service";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -1088,6 +1090,12 @@ const managedSettings = new ManagedSettings(
 );
 // Internet traces (issue #42): kept 48 h on this computer; when their upload is required and has
 // not succeeded for 48 h, the harness is in fault and Internet is cut (local and intranet only).
+// Vault (issue #13): opened on first use, after the app is ready (safeStorage needs it).
+const vaultService = new VaultService({
+  userDataDir: configuredUserDataDir,
+  safeStorage: () => safeStorage,
+  useTestCipher: !app.isPackaged && process.env.JARVIS_VAULT_TEST_CIPHER === "1",
+});
 const internetTraces = new InternetTraceLog(
   path.join(configuredUserDataDir, "traces", "internet.jsonl"),
   path.join(configuredUserDataDir, "traces", "upload-state.json"),
@@ -1468,6 +1476,7 @@ app
         networkActivity: () => networkGateway.recentActivity(),
         currentUser: () => currentUser,
         managedSettings,
+        vault: vaultService,
         ping: () =>
           devReloadMarkersEnabled
             ? `Jarvis desktop ready:${MAIN_DEV_RELOAD_MARKER}`

@@ -181,7 +181,8 @@ Détails : [securite.md](securite.md).
 | Configuration centrale signée Ed25519 (prompt système, sorties réseau, modèles, paquets, savoirs)           | 🧱   |
 | Passerelle réseau : intranet seulement par défaut, chaque tentative d'accès réseau signalée à l'utilisateur | ✅   |
 | Garde de sortie réseau (liste d'hôtes autorisés, refus des redirections hors liste)                         | 🧱   |
-| Coffre de secrets chiffré, références `{{secret:nom}}`, masquage des sorties                                | 🧱   |
+| Coffre-fort : écran de gestion (Réglages › Coffre-fort), valeurs chiffrées et jamais affichées              | ✅   |
+| Coffre-fort : références `{{secret:nom}}` dans les outils, autorisations, masquage des sorties              | 🧱   |
 | Filtre « ceci ressemble à un secret » pour la mémoire                                                       | 🧱   |
 | Refus de démarrer en root (message, arrêt avant toute écriture)                                             | ✅   |
 | Autostart et daemon `systemd --user`                                                                        | 🧱   |

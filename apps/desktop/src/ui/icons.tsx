@@ -705,6 +705,28 @@ export function KeyboardIcon() {
   );
 }
 
+export function LockIcon() {
+  return (
+    <Icon>
+      <rect
+        x="4.6"
+        y="8.6"
+        width="10.8"
+        height="7.6"
+        rx="1.8"
+        stroke="currentColor"
+        strokeWidth="1.35"
+      />
+      <path
+        d="M7 8.6V6.6a3 3 0 0 1 6 0v2M10 11.6v1.6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.35"
+      />
+    </Icon>
+  );
+}
+
 export function PlugIcon() {
   return (
     <Icon>

@@ -4,19 +4,20 @@ Ce document décrit les mécanismes de sécurité présents dans le code de Jarv
 leurs limites connues. Il distingue ce qui protège déjà l'application de ce qui n'existe encore
 que sous forme de socle (code testé mais non branché) ou de spécification.
 
-| Mécanisme                                          | État                  | Code                                                                                             |
-| -------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
-| Isolation du renderer (sandbox, contextIsolation)  | ✅ Opérationnel       | [`electron/main.ts`](../apps/desktop/electron/main.ts)                                           |
-| Validation des IPC, contrôle de la frame émettrice | ✅ Opérationnel       | [`electron/ipc/`](../apps/desktop/electron/ipc)                                                  |
-| Isolation des vues d'extension                     | ✅ Opérationnel       | [`electron/extensions/`](../apps/desktop/electron/extensions)                                    |
-| Lanceur Linux et sandbox Chromium                  | ✅ Opérationnel       | [`scripts/after-pack-linux-launcher.cjs`](../apps/desktop/scripts/after-pack-linux-launcher.cjs) |
-| Profil AppArmor pour l'admin                       | ✅ Fourni, à déployer | [`resources/linux/apparmor-jarvis`](../apps/desktop/resources/linux/apparmor-jarvis)             |
-| Configuration signée Ed25519                       | 🧱 Socle non branché  | [`electron/jarvis/managed-config.ts`](../apps/desktop/electron/jarvis/managed-config.ts)         |
-| Passerelle réseau (intranet par défaut)            | ✅ Opérationnel       | [`electron/jarvis/network-gateway.ts`](../apps/desktop/electron/jarvis/network-gateway.ts)       |
-| `fetch` gardé des outils (`egress-guard`)          | 🧱 Socle non branché  | [`electron/jarvis/egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)             |
-| Coffre de secrets                                  | 🧱 Socle non branché  | [`electron/jarvis/secret-vault.ts`](../apps/desktop/electron/jarvis/secret-vault.ts)             |
-| Daemon et autostart sans root                      | 🧱 Socle non branché  | [`electron/jarvis/user-daemon.ts`](../apps/desktop/electron/jarvis/user-daemon.ts)               |
-| OIDC, PKCS#11                                      | 📐 Spécifié           | [specification.md §7 bis](specification.md#7-bis-authentification--oidc-et-pkcs11)               |
+| Mécanisme                                               | État                  | Code                                                                                             |
+| ------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
+| Isolation du renderer (sandbox, contextIsolation)       | ✅ Opérationnel       | [`electron/main.ts`](../apps/desktop/electron/main.ts)                                           |
+| Validation des IPC, contrôle de la frame émettrice      | ✅ Opérationnel       | [`electron/ipc/`](../apps/desktop/electron/ipc)                                                  |
+| Isolation des vues d'extension                          | ✅ Opérationnel       | [`electron/extensions/`](../apps/desktop/electron/extensions)                                    |
+| Lanceur Linux et sandbox Chromium                       | ✅ Opérationnel       | [`scripts/after-pack-linux-launcher.cjs`](../apps/desktop/scripts/after-pack-linux-launcher.cjs) |
+| Profil AppArmor pour l'admin                            | ✅ Fourni, à déployer | [`resources/linux/apparmor-jarvis`](../apps/desktop/resources/linux/apparmor-jarvis)             |
+| Configuration signée Ed25519                            | 🧱 Socle non branché  | [`electron/jarvis/managed-config.ts`](../apps/desktop/electron/jarvis/managed-config.ts)         |
+| Passerelle réseau (intranet par défaut)                 | ✅ Opérationnel       | [`electron/jarvis/network-gateway.ts`](../apps/desktop/electron/jarvis/network-gateway.ts)       |
+| `fetch` gardé des outils (`egress-guard`)               | 🧱 Socle non branché  | [`electron/jarvis/egress-guard.ts`](../apps/desktop/electron/jarvis/egress-guard.ts)             |
+| Coffre-fort : écran de gestion (Réglages › Coffre-fort) | ✅ Opérationnel       | [`electron/jarvis/vault-service.ts`](../apps/desktop/electron/jarvis/vault-service.ts)           |
+| Coffre-fort : utilisation par les outils, autorisations | 🧱 Socle non branché  | [`electron/jarvis/secret-vault.ts`](../apps/desktop/electron/jarvis/secret-vault.ts)             |
+| Daemon et autostart sans root                           | 🧱 Socle non branché  | [`electron/jarvis/user-daemon.ts`](../apps/desktop/electron/jarvis/user-daemon.ts)               |
+| OIDC, PKCS#11                                           | 📐 Spécifié           | [specification.md §7 bis](specification.md#7-bis-authentification--oidc-et-pkcs11)               |
 
 Les quatre modules du socle sont couverts par
 [`tests/unit/jarvis-security.spec.ts`](../apps/desktop/tests/unit/jarvis-security.spec.ts), exécuté
@@ -176,7 +177,16 @@ l'appel, désactive le suivi automatique des redirections et refuse une redirect
 autorisé. Il complète la passerelle pour les outils de Jarvis (exigence de `https`), mais n'est pas
 encore utilisé ; ses motifs d'hôtes sont réutilisés par la passerelle.
 
-## Coffre de secrets — 🧱
+## Coffre de secrets — écran ✅, utilisation par les outils 🧱
+
+**Écran (issue #13).** Réglages › Coffre-fort liste les secrets (nom et date, **jamais la valeur**),
+permet d'en ajouter, d'en remplacer (même nom), de chercher et de supprimer. La valeur saisie part
+une seule fois vers le process main, où elle est chiffrée par `safeStorage` dans
+`~/.config/Jarvis/vault.json` ; l'interface n'en reçoit jamais le contenu. Sans trousseau système
+sécurisé, la page affiche que le coffre est fermé et pourquoi. Un chiffrement factice existe pour
+les tests automatisés (`JARVIS_VAULT_TEST_CIPHER=1`), ignoré par une application packagée.
+
+**Socle commun.**
 
 - Les valeurs sont chiffrées au repos par `safeStorage` d'Electron, adossé au trousseau du système
   (libsecret : GNOME Keyring ou KWallet). Le coffre **refuse de s'ouvrir** si le chiffrement est
@@ -194,7 +204,7 @@ encore utilisé ; ses motifs d'hôtes sont réutilisés par la passerelle.
 
 **Limites connues**
 
-- Rien n'appelle le coffre : aucun écran, aucun outil, aucun emplacement de fichier défini.
+- Le coffre est ouvert par l'écran de gestion (#13) ; les outils ne l'utilisent pas encore (#14).
 - Les identifiants des fournisseurs de modèles et des serveurs MCP restent aujourd'hui gérés par
   Pi (`~/.config/Jarvis/agent/auth.json`, `mcp.json`), hors du coffre et non chiffrés par Jarvis.
 - Le masquage ne reconnaît que trois formes exactes. Il ne détecte pas une valeur encodée

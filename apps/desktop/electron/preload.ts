@@ -1,3 +1,4 @@
+import type { VaultState } from "../contracts/vault";
 import type { ManagedSettingView } from "../contracts/managed-settings";
 import type { DesktopUser } from "../contracts/user";
 import type {
@@ -175,6 +176,11 @@ contextBridge.exposeInMainWorld("piApp", {
       desktopIpc.changeReviewFileStage,
       input,
     ) as Promise<ChangeReviewFileStageResult>,
+  getVault: () => ipcRenderer.invoke(desktopIpc.getVault) as Promise<VaultState>,
+  setVaultSecret: (name: string, value: string) =>
+    ipcRenderer.invoke(desktopIpc.setVaultSecret, name, value) as Promise<VaultState>,
+  deleteVaultSecret: (name: string) =>
+    ipcRenderer.invoke(desktopIpc.deleteVaultSecret, name) as Promise<VaultState>,
   getManagedSettings: () =>
     ipcRenderer.invoke(desktopIpc.getManagedSettings) as Promise<readonly ManagedSettingView[]>,
   setManagedSetting: (key: string, value: unknown) =>

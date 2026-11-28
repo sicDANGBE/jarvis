@@ -4,6 +4,7 @@ import {
   BellIcon,
   ExtensionIcon,
   KeyboardIcon,
+  LockIcon,
   ModelIcon,
   PlugIcon,
   SettingsIcon,
@@ -55,6 +56,15 @@ export const SETTINGS_SECTIONS = [
     icon: <BellIcon />,
     keywords: ["alerts", "background", "completion", "failures", "approval", "macos"],
     descriptionKey: "settings.section.notifications.description",
+    needsWorkspace: false,
+  },
+  {
+    id: "vault",
+    titleKey: "settings.nav.vault",
+    groupKey: "settings.group.app",
+    icon: <LockIcon />,
+    keywords: ["secrets", "passwords", "keys", "keychain", "coffre", "mot de passe", "trousseau"],
+    descriptionKey: "settings.section.vault.description",
     needsWorkspace: false,
   },
   {

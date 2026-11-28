@@ -1,3 +1,4 @@
+import type { VaultState } from "./vault";
 import type { ManagedSettingView } from "./managed-settings";
 import type {
   ExtensionViewOpenFile,
@@ -120,6 +121,9 @@ export const desktopIpc = {
   networkActivity: "jarvis:network-activity",
   getCurrentUser: "jarvis:get-current-user",
   getManagedSettings: "jarvis:get-managed-settings",
+  getVault: "jarvis:get-vault",
+  setVaultSecret: "jarvis:set-vault-secret",
+  deleteVaultSecret: "jarvis:delete-vault-secret",
   setManagedSetting: "jarvis:set-managed-setting",
   getNetworkActivity: "jarvis:get-network-activity",
   extensionViewOpenFile: "jarvis:extension-view-open-file",
@@ -754,6 +758,10 @@ export interface PiDesktopApi {
   getCurrentUser(): Promise<DesktopUser | undefined>;
   /** Jarvis's managed settings with their source and lock (issue #41). */
   getManagedSettings(): Promise<readonly ManagedSettingView[]>;
+  /** The vault's names and dates (never values), or why it is closed (issue #13). */
+  getVault(): Promise<VaultState>;
+  setVaultSecret(name: string, value: string): Promise<VaultState>;
+  deleteVaultSecret(name: string): Promise<VaultState>;
   /** Saves the user's choice; rejected when the agency locked the setting. */
   setManagedSetting(key: string, value: unknown): Promise<readonly ManagedSettingView[]>;
   onNetworkActivity(listener: NetworkActivityListener): () => void;

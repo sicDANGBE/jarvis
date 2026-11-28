@@ -22,6 +22,7 @@ import { SettingsNotificationsSection } from "./settings-notifications-section";
 import { SettingsProvidersSection } from "./settings-providers-section";
 import { type SettingsSection, settingsSectionDefinition } from "./settings-sections";
 import { SettingsShortcutsSection } from "./settings-shortcuts-section";
+import { SettingsVaultSection } from "./settings-vault-section";
 
 export type { SettingsSection } from "./settings-sections";
 
@@ -164,6 +165,8 @@ export function SettingsView({
           ) : null}
 
           {section === "shortcuts" ? <SettingsShortcutsSection platform={platform} /> : null}
+
+          {section === "vault" ? <SettingsVaultSection /> : null}
 
           {section === "providers" ? (
             <SettingsProvidersSection

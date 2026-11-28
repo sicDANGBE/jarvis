@@ -3506,3 +3506,20 @@ mark.thread-find-active {
   cursor: pointer;
   opacity: 0.6;
 }
+
+/* Vault page (issue #13). */
+.vault-form {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.vault-form .settings-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.vault-error {
+  padding: 0 var(--space-4) var(--space-3);
+  color: #b91c1c;
+}
