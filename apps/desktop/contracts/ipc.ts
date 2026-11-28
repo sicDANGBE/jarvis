@@ -1,3 +1,4 @@
+import type { ManagedSettingView } from "./managed-settings";
 import type {
   ExtensionViewOpenFile,
   DesktopExtensionViewInfo,
@@ -118,6 +119,8 @@ export const uiLocaleArgumentPrefix = "--jarvis-ui-locale=";
 export const desktopIpc = {
   networkActivity: "jarvis:network-activity",
   getCurrentUser: "jarvis:get-current-user",
+  getManagedSettings: "jarvis:get-managed-settings",
+  setManagedSetting: "jarvis:set-managed-setting",
   getNetworkActivity: "jarvis:get-network-activity",
   extensionViewOpenFile: "jarvis:extension-view-open-file",
   listExtensionViews: "jarvis:list-extension-views",
@@ -749,6 +752,10 @@ export interface PiDesktopApi {
   getNetworkActivity(): Promise<readonly NetworkActivityEvent[]>;
   /** The current user; undefined until authentication exists outside development builds. */
   getCurrentUser(): Promise<DesktopUser | undefined>;
+  /** Jarvis's managed settings with their source and lock (issue #41). */
+  getManagedSettings(): Promise<readonly ManagedSettingView[]>;
+  /** Saves the user's choice; rejected when the agency locked the setting. */
+  setManagedSetting(key: string, value: unknown): Promise<readonly ManagedSettingView[]>;
   onNetworkActivity(listener: NetworkActivityListener): () => void;
   getSelectedTranscript(): Promise<SelectedTranscriptRecord | null>;
   onSelectedTranscriptChanged(listener: PiDesktopSelectedTranscriptListener): () => void;

@@ -86,8 +86,19 @@ export function loadLocalDevConfig(options: {
   }
 }
 
-/** Politique réseau d'une configuration ; intranet seul tant qu'aucune n'est chargée. */
-export function networkPolicyFromConfig(config: ManagedConfigBundle | undefined): NetworkPolicy {
+/**
+ * Politique réseau effective : celle de la configuration (intranet seul sans configuration), ouverte
+ * à Internet quand le réglage `network.internet` est actif (D16), sauf si l'agence a tout coupé.
+ */
+export function networkPolicyFromConfig(
+  config: ManagedConfigBundle | undefined,
+  internetEnabled = false,
+): NetworkPolicy {
+  const base = baseNetworkPolicy(config);
+  return internetEnabled && base.mode !== "deny-all" ? { mode: "open", hosts: [] } : base;
+}
+
+function baseNetworkPolicy(config: ManagedConfigBundle | undefined): NetworkPolicy {
   if (!config) return DEFAULT_NETWORK_POLICY;
   const egress = config.egress;
   switch (egress.mode) {

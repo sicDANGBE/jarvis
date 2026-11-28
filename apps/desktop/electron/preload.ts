@@ -1,3 +1,4 @@
+import type { ManagedSettingView } from "../contracts/managed-settings";
 import type { DesktopUser } from "../contracts/user";
 import type {
   ExtensionViewOpenFile,
@@ -174,6 +175,12 @@ contextBridge.exposeInMainWorld("piApp", {
       desktopIpc.changeReviewFileStage,
       input,
     ) as Promise<ChangeReviewFileStageResult>,
+  getManagedSettings: () =>
+    ipcRenderer.invoke(desktopIpc.getManagedSettings) as Promise<readonly ManagedSettingView[]>,
+  setManagedSetting: (key: string, value: unknown) =>
+    ipcRenderer.invoke(desktopIpc.setManagedSetting, key, value) as Promise<
+      readonly ManagedSettingView[]
+    >,
   getCurrentUser: () =>
     ipcRenderer.invoke(desktopIpc.getCurrentUser) as Promise<DesktopUser | undefined>,
   getNetworkActivity: () =>

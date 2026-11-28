@@ -29,6 +29,7 @@ import { jarvisSystemInstructions } from "./jarvis/system-prompt";
 import { setupJarvisAgentDir } from "./jarvis/agent-dir";
 import { applyDefaultModel, createModelAllowList } from "./jarvis/model-policy";
 import { syncManagedLlmProvider } from "./jarvis/llm-provider";
+import { ManagedSettings } from "./jarvis/managed-settings";
 import {
   loadLocalDevConfig,
   networkPolicyFromConfig,
@@ -1072,7 +1073,20 @@ const agencyConfig = localConfig.status === "loaded" ? localConfig.config : unde
 // Development builds simulate an administrator (decision D1); roles will come from authentication.
 const currentUser: DesktopUser | undefined =
   localConfig.status === "production" ? undefined : simulatedDevUser();
-networkGateway.setPolicy(networkPolicyFromConfig(agencyConfig));
+// Managed settings (issue #41): the agency's values, defaults and locks, then the user's choices.
+const managedSettings = new ManagedSettings(
+  agencyConfig?.settings ?? {},
+  path.join(configuredUserDataDir, "jarvis-settings.json"),
+  (key) => {
+    if (key === "network.internet") applyNetworkPolicy();
+  },
+);
+function applyNetworkPolicy(): void {
+  networkGateway.setPolicy(
+    networkPolicyFromConfig(agencyConfig, managedSettings.getBoolean("network.internet")),
+  );
+}
+applyNetworkPolicy();
 try {
   // The agency's model gateway (LiteLLM, issue #7), written before Pi reads models.json.
   syncManagedLlmProvider(agentDirSetup.agentDir, agencyConfig?.llm);
@@ -1388,6 +1402,7 @@ app
       capabilities: {
         networkActivity: () => networkGateway.recentActivity(),
         currentUser: () => currentUser,
+        managedSettings,
         ping: () =>
           devReloadMarkersEnabled
             ? `Jarvis desktop ready:${MAIN_DEV_RELOAD_MARKER}`

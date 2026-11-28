@@ -5,6 +5,7 @@
  * La signature porte sur les octets exacts du payload décodé.
  * Règle de sûreté : un bundle invalide, mal signé ou expiré n'écrase jamais le dernier bundle valide.
  */
+import { parseAgencySettings, type AgencySettings } from "./managed-settings";
 import { createPublicKey, verify } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
@@ -30,6 +31,8 @@ export interface ManagedConfigBundle {
   readonly features: { readonly developerMode: boolean };
   /** Passerelle de modèles de l'agence (LiteLLM), compatible OpenAI (issue #7). */
   readonly llm?: ManagedLlm;
+  /** Réglages administrés : valeur, défaut, verrouillage (issue #41). */
+  readonly settings?: AgencySettings;
 }
 
 export interface ManagedLlmModel {
@@ -184,7 +187,18 @@ export function parseManagedConfig(raw: unknown): ManagedConfigBundle {
     features: { developerMode: features.developerMode === true },
   };
   const llm = raw.llm === undefined ? undefined : parseLlm(raw.llm);
-  return { ...bundle, ...(models ? { models } : {}), ...(llm ? { llm } : {}) };
+  let settings: AgencySettings | undefined;
+  try {
+    settings = raw.settings === undefined ? undefined : parseAgencySettings(raw.settings);
+  } catch (error) {
+    fail((error as Error).message);
+  }
+  return {
+    ...bundle,
+    ...(models ? { models } : {}),
+    ...(llm ? { llm } : {}),
+    ...(settings ? { settings } : {}),
+  };
 }
 
 /** Vérifie la signature Ed25519 puis valide le contenu. Lève une erreur au moindre doute. */

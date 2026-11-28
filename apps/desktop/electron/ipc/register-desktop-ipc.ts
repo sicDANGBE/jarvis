@@ -1,3 +1,4 @@
+import type { ManagedSettingView } from "../../contracts/managed-settings";
 import type { DesktopUser } from "../../contracts/user";
 import type { NetworkActivityEvent } from "../../contracts/network";
 import { ipcMain, shell, type BrowserWindow, type IpcMainInvokeEvent } from "electron";
@@ -190,6 +191,10 @@ export interface DesktopIpcCapabilities {
   readonly ping: () => string;
   readonly networkActivity: () => readonly NetworkActivityEvent[];
   readonly currentUser: () => DesktopUser | undefined;
+  readonly managedSettings: {
+    list(): readonly ManagedSettingView[];
+    set(key: string, value: unknown): unknown;
+  };
   readonly theme: ThemeManager;
   readonly editors: EditorService;
   readonly openExternal: (url: string) => Promise<void>;
@@ -298,6 +303,17 @@ export function registerDesktopIpc({
     }
   };
 
+  ipcMain.handle(desktopIpc.getManagedSettings, (event) => {
+    windows.windowForSender(event.sender);
+    return capabilities.managedSettings.list();
+  });
+  ipcMain.handle(desktopIpc.setManagedSetting, (event, key: unknown, value: unknown) => {
+    windows.windowForSender(event.sender);
+    if (typeof key !== "string") throw new Error("Invalid setting key");
+    // The settings owner checks the key, the value's type and the agency's lock.
+    capabilities.managedSettings.set(key, value);
+    return capabilities.managedSettings.list();
+  });
   ipcMain.handle(desktopIpc.getCurrentUser, (event) => {
     windows.windowForSender(event.sender);
     return capabilities.currentUser();
